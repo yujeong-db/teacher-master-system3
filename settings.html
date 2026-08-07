@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>설정 · Teacher Talent Management System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body data-page="settings">
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">T</div>
+      <div class="txt">Teacher Talent<small>성장 관리 시스템</small></div>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="index.html"><span class="ic">◆</span><span>Dashboard</span></a>
+      <a class="nav-item" href="interviews.html"><span class="ic">📅</span><span>면접 일정</span></a>
+      <a class="nav-item" href="teachers.html"><span class="ic">☰</span><span>교사관리</span><span class="nav-count" data-nav="teachers" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=recruit"><span class="ic">✎</span><span>채용관리</span><span class="nav-count" data-nav="recruit" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train2w"><span class="ic">●</span><span>신입교육</span><span class="nav-count" data-nav="train2w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train4w"><span class="ic">▲</span><span>정착교육</span><span class="nav-count" data-nav="train4w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=handover"><span class="ic">⇄</span><span>인수인계</span><span class="nav-count" data-nav="handover" style="display:none">0</span></a>
+      <a class="nav-item active" href="settings.html"><span class="ic">⚙</span><span>설정</span></a>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-col">
+    <div class="topbar">
+      <div class="searchbox">
+        <span class="sicon">⌕</span>
+        <input type="text" id="topSearchInput" placeholder="교사 이름으로 빠르게 찾기"/>
+        <div class="search-drop" id="topSearchDrop" style="display:none"></div>
+      </div>
+      <div class="topbar-right">
+        <span id="evaluatorWrap"></span>
+        <button class="icon-btn" id="notifyBtn" title="알림">🔔</button>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="page-head">
+        <p class="page-eyebrow">Settings</p>
+        <h2 class="page-title">설정</h2>
+        <p class="page-sub">평가자, 소속팀·진행상태 목록, 데이터를 관리합니다.</p>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px;max-width:520px">
+        <div class="card-title">평가자 관리</div>
+        <div class="card-sub">여러 명의 평가자를 등록해두고, 상단 드롭다운에서 선택해 평가에 반영할 수 있어요.</div>
+        <div id="evaluatorList" style="margin-bottom:14px"></div>
+        <form id="addEvaluatorForm" style="display:flex;gap:8px">
+          <input type="text" id="newEvaluatorNameInput" placeholder="평가자 이름" maxlength="20" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+          <button type="submit" class="btn btn-primary btn-sm">추가</button>
+        </form>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px;max-width:520px">
+        <div class="card-title">소속팀 목록 관리</div>
+        <div class="card-sub">"현재 소속팀" 드롭다운에 표시될 팀 목록입니다. 신입팀은 Dashboard의 신입팀 배치 현황 카드에, 기존팀은 팀 배치 시 자동으로 "팀 배치 완료" 상태로 전환하는 기준이 됩니다.</div>
+        <div style="margin-bottom:12px">
+          <div class="card-sub" style="margin-bottom:6px;font-weight:700;color:var(--ink)">신입팀</div>
+          <div id="newTeamList" style="margin-bottom:8px"></div>
+          <form id="addNewTeamForm" style="display:flex;gap:8px">
+            <input type="text" id="newTeamCodeInput" placeholder="예: CNE2" maxlength="10" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+            <button type="submit" class="btn btn-ghost btn-sm">추가</button>
+          </form>
+        </div>
+        <div>
+          <div class="card-sub" style="margin-bottom:6px;font-weight:700;color:var(--ink)">기존팀</div>
+          <div id="placedTeamList" style="margin-bottom:8px"></div>
+          <form id="addPlacedTeamForm" style="display:flex;gap:8px">
+            <input type="text" id="placedTeamCodeInput" placeholder="예: C12" maxlength="10" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+            <button type="submit" class="btn btn-ghost btn-sm">추가</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px;max-width:520px">
+        <div class="card-title">면접 일정 목록 관리</div>
+        <div class="card-sub">면접 등록 시 드롭다운으로 선택할 면접관·회의실 목록입니다.</div>
+        <div style="margin-bottom:12px">
+          <div class="card-sub" style="margin-bottom:6px;font-weight:700;color:var(--ink)">면접관</div>
+          <div id="interviewerList" style="margin-bottom:8px"></div>
+          <form id="addInterviewerForm" style="display:flex;gap:8px">
+            <input type="text" id="newInterviewerInput" placeholder="예: 슬비" maxlength="20" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+            <button type="submit" class="btn btn-ghost btn-sm">추가</button>
+          </form>
+        </div>
+        <div>
+          <div class="card-sub" style="margin-bottom:6px;font-weight:700;color:var(--ink)">회의실</div>
+          <div id="interviewRoomList" style="margin-bottom:8px"></div>
+          <form id="addInterviewRoomForm" style="display:flex;gap:8px">
+            <input type="text" id="newInterviewRoomInput" placeholder="예: 3회의실" maxlength="20" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+            <button type="submit" class="btn btn-ghost btn-sm">추가</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px;max-width:520px">
+        <div class="card-title">진행상태 목록 관리</div>
+        <div class="card-sub">"진행상태" 드롭다운에 표시될 항목입니다. 채용진행 중·신입교육·정착교육·팀 배치 완료는 자동화 로직과 연결되어 있어 삭제할 수 없어요.</div>
+        <div id="statusConfigList" style="margin-bottom:12px"></div>
+        <form id="addStatusForm" style="display:flex;gap:8px">
+          <input type="text" id="newStatusLabelInput" placeholder="예: 휴직" maxlength="20" style="flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;background:var(--bg);"/>
+          <button type="submit" class="btn btn-ghost btn-sm">추가</button>
+        </form>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:14px;max-width:520px">
+        <div class="card-title">데이터 저장 방식</div>
+        <div class="card-sub">모든 데이터는 이 브라우저의 LocalStorage에 저장되며, 새로고침·재접속해도 유지됩니다. 다른 브라우저·기기와는 공유되지 않아요.</div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:14px;max-width:520px">
+        <div class="card-title">데이터 백업 / 복원</div>
+        <div class="card-sub">브라우저 데이터를 JSON 파일로 내보내거나, 백업 파일을 다시 불러올 수 있어요.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" id="exportDataBtn">⬇ JSON으로 내보내기</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+            ⬆ JSON 가져오기
+            <input type="file" id="importDataInput" accept="application/json" style="display:none"/>
+          </label>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="max-width:520px">
+        <div class="card-title">위험 구역</div>
+        <div class="card-sub">전체 데이터(교사·평가·평가자)를 초기화합니다. 되돌릴 수 없어요.</div>
+        <button class="btn btn-danger btn-sm" id="clearAllBtn">전체 데이터 초기화</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="constants.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="storage.js"></script>
+<script src="teacher.js"></script>
+<script src="evaluation.js"></script>
+<script src="chart.js"></script>
+<script src="report.js"></script>
+<script src="ui.js"></script>
+<script src="seed.js"></script>
+<script src="dashboard.js"></script>
+<script src="settings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

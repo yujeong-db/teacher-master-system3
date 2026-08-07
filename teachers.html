@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교사관리 · Teacher Talent Management System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body data-page="teachers">
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">T</div>
+      <div class="txt">Teacher Talent<small>성장 관리 시스템</small></div>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="index.html"><span class="ic">◆</span><span>Dashboard</span></a>
+      <a class="nav-item" href="interviews.html"><span class="ic">📅</span><span>면접 일정</span></a>
+      <a class="nav-item active" href="teachers.html"><span class="ic">☰</span><span>교사관리</span><span class="nav-count" data-nav="teachers" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=recruit"><span class="ic">✎</span><span>채용관리</span><span class="nav-count" data-nav="recruit" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train2w"><span class="ic">●</span><span>신입교육</span><span class="nav-count" data-nav="train2w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train4w"><span class="ic">▲</span><span>정착교육</span><span class="nav-count" data-nav="train4w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=handover"><span class="ic">⇄</span><span>인수인계</span><span class="nav-count" data-nav="handover" style="display:none">0</span></a>
+      <a class="nav-item" href="settings.html"><span class="ic">⚙</span><span>설정</span></a>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-col">
+    <div class="topbar">
+      <div class="searchbox">
+        <span class="sicon">⌕</span>
+        <input type="text" id="topSearchInput" placeholder="교사 이름으로 빠르게 찾기"/>
+        <div class="search-drop" id="topSearchDrop" style="display:none"></div>
+      </div>
+      <div class="topbar-right">
+        <span id="evaluatorWrap"></span>
+        <button class="icon-btn" id="notifyBtn" title="알림">🔔</button>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="page-head" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <p class="page-eyebrow">Teachers</p>
+          <h2 class="page-title">교사관리</h2>
+          <p class="page-sub">전체 교사를 검색하고, 상태·팀 기준으로 필터링하세요.</p>
+        </div>
+        <button class="btn btn-primary" id="addTeacherBtn">＋ 교사 추가</button>
+      </div>
+
+      <div class="filters-row">
+        <input type="text" class="list-search" id="listSearchInput" placeholder="이름으로 검색"/>
+        <div id="statusFilterChips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <span class="list-count" id="teacherListCount"></span>
+      </div>
+      <div class="filters-row" id="teamFilterChips"></div>
+      <div class="filters-row" id="jobFilterChips"></div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="tlist">
+            <thead>
+              <tr>
+                <th>이름</th><th>현재 소속팀</th><th>담당 팀장</th><th>신입교육 평점</th><th>정착교육 평점</th>
+                <th>교육 기수</th><th>성장률</th><th>진행상태</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="teacherTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addTeacherModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>교사 추가</h3>
+      <button type="button" class="modal-close" data-action="closeAddTeacher">✕</button>
+    </div>
+    <form>
+      <div class="field-grid">
+        <div class="field full"><label>이름 <span style="color:var(--red)">*</span></label><input type="text" id="newTeacherName" required placeholder="예: 김민지"/></div>
+        <div class="field"><label>이메일</label><input type="text" id="newTeacherEmail" placeholder="teacher@example.com"/></div>
+        <div class="field"><label>전화번호</label><input type="text" id="newTeacherPhone" placeholder="010-0000-0000"/></div>
+        <div class="field"><label>생년월일</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="date" id="newTeacherBirth"/>
+            <span id="newTeacherBirthAge" class="card-sub" style="margin:0;white-space:nowrap"></span>
+          </div>
+        </div>
+        <div class="field"><label>직무</label>
+          <select id="newTeacherJob">
+            <option value="">미지정</option>
+            <option value="english">영어 교사</option>
+            <option value="subject">교과 교사</option>
+            <option value="elementary">초등전담</option>
+            <option value="freeTrial">무료체험</option>
+          </select>
+        </div>
+        <div class="field"><label>교육 기수</label><select id="newTeacherCohort"><option value="">미지정</option></select></div>
+        <div class="field"><label>담당 팀장</label><select id="newTeacherTeamLead"><option value="">미지정</option></select></div>
+        <div class="field"><label>추천인</label><input type="text" id="newTeacherReferrer" placeholder="추천인 이름"/></div>
+        <div class="field full"><label>이전 경력</label><textarea id="newTeacherPriorCareer" placeholder="예: OO어학원, OO초등학교"></textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-action="closeAddTeacher">취소</button>
+        <button type="submit" class="btn btn-primary">교사 추가</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="constants.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="storage.js"></script>
+<script src="teacher.js"></script>
+<script src="evaluation.js"></script>
+<script src="chart.js"></script>
+<script src="report.js"></script>
+<script src="ui.js"></script>
+<script src="seed.js"></script>
+<script src="teachers-page.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

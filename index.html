@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Teacher Talent Management System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body data-page="dashboard">
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">T</div>
+      <div class="txt">Teacher Talent<small>성장 관리 시스템</small></div>
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="index.html"><span class="ic">◆</span><span>Dashboard</span></a>
+      <a class="nav-item" href="interviews.html"><span class="ic">📅</span><span>면접 일정</span></a>
+      <a class="nav-item" href="teachers.html"><span class="ic">☰</span><span>교사관리</span><span class="nav-count" data-nav="teachers" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=recruit"><span class="ic">✎</span><span>채용관리</span><span class="nav-count" data-nav="recruit" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train2w"><span class="ic">●</span><span>신입교육</span><span class="nav-count" data-nav="train2w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=train4w"><span class="ic">▲</span><span>정착교육</span><span class="nav-count" data-nav="train4w" style="display:none">0</span></a>
+      <a class="nav-item" href="teachers.html?filter=handover"><span class="ic">⇄</span><span>인수인계</span><span class="nav-count" data-nav="handover" style="display:none">0</span></a>
+      <a class="nav-item" href="settings.html"><span class="ic">⚙</span><span>설정</span></a>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-col">
+    <div class="topbar">
+      <div class="searchbox">
+        <span class="sicon">⌕</span>
+        <input type="text" id="topSearchInput" placeholder="교사 이름으로 빠르게 찾기"/>
+        <div class="search-drop" id="topSearchDrop" style="display:none"></div>
+      </div>
+      <div class="topbar-right">
+        <span id="evaluatorWrap"></span>
+        <button class="icon-btn" id="notifyBtn" title="알림">🔔</button>
+      </div>
+    </div>
+
+    <div class="page" id="dashboardBody">
+      <div class="page-head">
+        <p class="page-eyebrow">Dashboard</p>
+        <h2 class="page-title">전체 현황 한눈에 보기</h2>
+        <p class="page-sub">채용부터 팀 배치까지, 모든 교사의 진행 상태를 실시간으로 확인하세요.</p>
+      </div>
+
+      <div id="dashboardContent">
+      <!-- KPI -->
+      <div class="grid kpi-grid" id="kpiGrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px"></div>
+
+      <!-- 신입 교육 일정 -->
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="card-title">신입 교육 일정</div>
+            <div class="card-sub" style="margin-bottom:0">등록한 신입 교육 일정과 기수별 채용 목표 인원을 관리하세요.</div>
+          </div>
+          <div style="display:flex;gap:8px;position:relative">
+            <button type="button" class="btn btn-ghost btn-sm" id="hiddenCohortsBtn">숨겨진 기수 (<span id="hiddenCohortsCount">0</span>) ▾</button>
+            <div class="hidden-cohorts-panel" id="hiddenCohortsPanel" style="display:none"></div>
+            <button class="btn btn-primary btn-sm" id="addCohortBtn">＋ 교육 일정 등록</button>
+          </div>
+        </div>
+        <div id="cohortFeatured" style="margin-top:16px"></div>
+        <div id="cohortListWrap" style="margin-top:14px"></div>
+      </div>
+
+      <!-- 신입팀 배치 현황 -->
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="card-title">신입팀 배치 현황</div>
+        <div class="card-sub">CNE1 / CN1 — 신입 교육 중인 교사가 소속된 팀의 실시간 인원 현황입니다.</div>
+        <div class="newteam-grid" id="newTeamGrid"></div>
+      </div>
+
+      <!-- 신입교사 성장 추이 -->
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="card-title">신입교사 성장 추이</div>
+        <div class="card-sub">최근 3개월 내 입사한 교사를 교육 기수별로 묶어 신입교육·정착교육 평균 총점을 비교합니다.</div>
+        <div class="chart-h"><canvas id="chartGrowthTrend"></canvas></div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addCohortModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>신입 교육 일정 등록</h3>
+      <button type="button" class="modal-close" data-action="closeAddCohort">✕</button>
+    </div>
+    <form id="addCohortForm">
+      <div class="field-grid">
+        <div class="field full"><label>기수명 <span style="color:var(--red)">*</span></label><input type="text" id="newCohortLabel" required placeholder="예: 2026년 8월 기수"/></div>
+        <div class="field full"><label>교육 시작일 <span style="color:var(--red)">*</span></label><input type="date" id="newCohortDate" required/></div>
+        <div class="field"><label>영어 교사 목표 인원</label><input type="number" id="newCohortTargetEnglish" min="0" value="0"/></div>
+        <div class="field"><label>교과 교사 목표 인원</label><input type="number" id="newCohortTargetSubject" min="0" value="0"/></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-action="closeAddCohort">취소</button>
+        <button type="submit" class="btn btn-primary">교육 일정 등록</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="constants.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="storage.js"></script>
+<script src="teacher.js"></script>
+<script src="evaluation.js"></script>
+<script src="chart.js"></script>
+<script src="report.js"></script>
+<script src="ui.js"></script>
+<script src="seed.js"></script>
+<script src="dashboard.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
