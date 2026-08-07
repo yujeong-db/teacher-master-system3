@@ -532,16 +532,20 @@ function renderReportTab(record){
     <div class="tl-step"><div class="tl-dotcol"><div class="tl-dot ${s.on?'on':''}"></div><div class="tl-line ${s.on?'on':''}"></div></div>
     <div class="tl-body"><div class="tl-title">${s.label}</div>${s.date?`<div class="tl-date">${s.date}</div>`:''}${s.score!=null?`<div class="tl-score">평균 ${s.score.toFixed(1)}점</div>`:''}</div></div>`).join('');
 
+  const categoryChartsHtml = SCORE_CATEGORIES.map(cat=>`
+    <div>
+      <div style="text-align:center;font-size:12.5px;font-weight:700;color:var(--ink-dim);margin-bottom:6px">${cat.label}</div>
+      <div class="chart-h" style="height:200px"><canvas id="chartReportCat_${cat.key}"></canvas></div>
+    </div>`).join('');
+
   return `<div>
-    <div class="two-col" style="margin-bottom:16px">
-      <div class="card card-pad">
-        <h3 class="card-title">성장 그래프</h3><p class="card-sub">면접 → 2주 → 4주 → 현재</p>
-        <div class="chart-h"><canvas id="chartReportTrend"></canvas></div>
-      </div>
-      <div class="card card-pad">
-        <h3 class="card-title">카테고리별 비교</h3><p class="card-sub">코칭능력·회원관리·업무지식 — 신입교육 vs 정착교육</p>
-        <div class="chart-h"><canvas id="chartReportCategory"></canvas></div>
-      </div>
+    <div class="card card-pad" style="margin-bottom:16px">
+      <h3 class="card-title">성장 그래프</h3><p class="card-sub">면접 → 2주 → 4주 → 현재</p>
+      <div class="chart-h"><canvas id="chartReportTrend"></canvas></div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:16px">
+      <h3 class="card-title">카테고리별 비교</h3><p class="card-sub">코칭능력·회원관리·업무지식 — 신입교육 vs 정착교육 평균 점수</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">${categoryChartsHtml}</div>
     </div>
     <div class="two-col" style="margin-bottom:16px">
       <div class="card card-pad">
@@ -584,12 +588,10 @@ function renderReportCharts(record){
   const trendCtx = document.getElementById('chartReportTrend');
   chartService.lineChart('reportTrend', trendCtx, ['면접','2주','4주','현재'], [a.interview,a.train2w,a.settle4w,a.settle4w??a.train2w??a.interview], '#4F7CFF');
 
-  const categoryCtx = document.getElementById('chartReportCategory');
-  const categoryLabels = SCORE_CATEGORIES.map(c=>c.label);
-  const trainVals = SCORE_CATEGORIES.map(c=>teacherService.categoryAvg(record.scores.train2w, TRAIN_SCORES, c.key)||0);
-  const settleVals = SCORE_CATEGORIES.map(c=>teacherService.categoryAvg(record.scores.settle4w, SETTLE_SCORES, c.key)||0);
-  chartService.groupedBarChart('reportCategory', categoryCtx, categoryLabels, [
-    { label:'신입교육', data:trainVals, backgroundColor:'#4F7CFF' },
-    { label:'정착교육', data:settleVals, backgroundColor:'#8B6FF0' },
-  ]);
+  SCORE_CATEGORIES.forEach(cat=>{
+    const ctx = document.getElementById(`chartReportCat_${cat.key}`);
+    const trainVal = teacherService.categoryAvg(record.scores.train2w, TRAIN_SCORES, cat.key)||0;
+    const settleVal = teacherService.categoryAvg(record.scores.settle4w, SETTLE_SCORES, cat.key)||0;
+    chartService.categoryBarChart(`reportCat_${cat.key}`, ctx, trainVal, settleVal);
+  });
 }

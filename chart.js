@@ -66,6 +66,27 @@ class ChartService {
       }
     });
   }
+  // 카테고리 1개당 신입교육/정착교육 막대 2개짜리 소형 막대그래프 (최종리포트 카테고리별 비교용)
+  categoryBarChart(key, ctx, trainVal, settleVal){
+    if(!ctx) return;
+    const { grid, tick } = this._themeColors();
+    this.registry[key] = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:['신입교육','정착교육'],
+        datasets:[{ data:[trainVal, settleVal], backgroundColor:['#4F7CFF','#8B6FF0'], borderRadius:8, barThickness:36 }],
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{ duration:700, easing:'easeOutQuart' },
+        scales:{
+          y:{ min:1, max:5, ticks:{ stepSize:1, color: tick }, grid:{ color: grid } },
+          x:{ ticks:{ color: tick }, grid:{ display:false } },
+        },
+        plugins:{ legend:{ display:false } },
+      }
+    });
+  }
   radarChart(key, ctx, labels, datasets){
     if(!ctx) return;
     const { tick } = this._themeColors();
