@@ -426,15 +426,35 @@ function renderInterviewTab(record){
   </div>`;
 }
 
-/* ---- 신입교육 (기존 유지) ---- */
+// 코칭능력/회원관리/업무지식 카테고리별로 별점 항목을 묶어서 렌더링합니다.
+// (신입교육/정착교육 탭에서 공용으로 사용) hasExam인 항목 옆에는 시험결과 입력칸이 붙습니다.
+function renderScoreCategoryGroups(section, scoreObj, fields, examResultValue){
+  return SCORE_CATEGORIES.map(cat=>{
+    const items = fields.filter(f=>f.category===cat.key);
+    const avg = teacherService.categoryAvg(scoreObj, fields, cat.key);
+    const stars = items.map(f=>{
+      let widget = ui.starWidget(section, f.key, scoreObj[f.key], f.label);
+      if(f.hasExam){
+        widget += `<div class="field exam-result-field"><label>시험결과</label><input type="text" data-field="${section}.examResult" value="${ui.escapeHtml(examResultValue)}" placeholder="예: 92점"/></div>`;
+      }
+      return widget;
+    }).join('');
+    return `<div class="score-category-block">
+      <div class="score-category-head"><h4>${cat.label}</h4>${avg!==null?`<span class="score-pill">${avg.toFixed(1)}</span>`:'<span class="card-sub" style="margin:0">–</span>'}</div>
+      <div class="star-grid">${stars}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 신입교육 (코칭능력/회원관리/업무지식 3개 카테고리, 항목별 5점 척도) ---- */
 function renderTrain2wTab(record){
   const tr = record.train2w;
   const avg = teacherService.avgOf(record.scores.train2w, TRAIN_SCORES);
-  const stars = TRAIN_SCORES.map(f=>ui.starWidget('train2w', f.key, record.scores.train2w[f.key], f.label)).join('');
+  const groups = renderScoreCategoryGroups('train2w', record.scores.train2w, TRAIN_SCORES, tr.examResult);
   return `<div class="card card-pad">
-    <h3 class="card-title">신입교육 2주 평가</h3><p class="card-sub">${avg!==null?`평균 <b>${avg.toFixed(1)} / 5.0</b>`:'교육 기간 동안의 역량을 별점으로 평가합니다.'}</p>
-    <div class="star-grid">${stars}</div>
-    <div class="field-grid">
+    <h3 class="card-title">신입교육 2주 평가</h3><p class="card-sub">${avg!==null?`평균 <b>${avg.toFixed(1)} / 5.0</b>`:'코칭능력·회원관리·업무지식 3개 영역을 항목별 5점 척도로 평가합니다.'}</p>
+    ${groups}
+    <div class="field-grid" style="margin-top:16px">
       <div class="field full"><label>첫 상담 RP 평가 링크</label>
         <div class="copy-row"><input type="url" data-field="train2w.firstRpLink" value="${ui.escapeHtml(tr.firstRpLink)}" placeholder="젬스 공유 링크"/>
         <button class="copy-btn" data-action="copyText" data-value="${ui.escapeHtml(tr.firstRpLink)}">복사</button></div>
@@ -449,10 +469,10 @@ function renderTrain2wTab(record){
   </div>`;
 }
 
-/* ---- 정착교육 (기존 유지) ---- */
+/* ---- 정착교육 (코칭능력/회원관리/업무지식 3개 카테고리 + 주차별 기록) ---- */
 function renderSettle4wTab(record){
   const avg = teacherService.avgOf(record.scores.settle4w, SETTLE_SCORES);
-  const stars = SETTLE_SCORES.map(f=>ui.starWidget('settle4w', f.key, record.scores.settle4w[f.key], f.label)).join('');
+  const groups = renderScoreCategoryGroups('settle4w', record.scores.settle4w, SETTLE_SCORES, record.settle4w.examResult);
   const weeks = record.settle4w.weeks || [{},{},{},{}];
   const weekCards = weeks.map((w,idx)=>`
     <div class="week-card">
@@ -463,8 +483,8 @@ function renderSettle4wTab(record){
     </div>`).join('');
   return `<div>
     <div class="card card-pad" style="margin-bottom:16px">
-      <h3 class="card-title">정착교육 4주 평가</h3><p class="card-sub">${avg!==null?`평균 <b>${avg.toFixed(1)} / 5.0</b>`:'정착 기간 동안의 실무 역량을 평가합니다.'}</p>
-      <div class="star-grid">${stars}</div>
+      <h3 class="card-title">정착교육 4주 평가</h3><p class="card-sub">${avg!==null?`평균 <b>${avg.toFixed(1)} / 5.0</b>`:'코칭능력·회원관리·업무지식 3개 영역을 항목별 5점 척도로 평가합니다.'}</p>
+      ${groups}
       <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
         <button class="btn btn-primary btn-sm" data-action="saveDetail">💾 저장</button>
         <div class="save-note" id="saveNote"></div>
@@ -519,8 +539,8 @@ function renderReportTab(record){
         <div class="chart-h"><canvas id="chartReportTrend"></canvas></div>
       </div>
       <div class="card card-pad">
-        <h3 class="card-title">역량 비교 (Radar)</h3><p class="card-sub">면접 / 신입교육 / 정착교육 유사 역량군 비교</p>
-        <div class="chart-h"><canvas id="chartReportRadar"></canvas></div>
+        <h3 class="card-title">카테고리별 비교</h3><p class="card-sub">코칭능력·회원관리·업무지식 — 신입교육 vs 정착교육</p>
+        <div class="chart-h"><canvas id="chartReportCategory"></canvas></div>
       </div>
     </div>
     <div class="two-col" style="margin-bottom:16px">
@@ -564,14 +584,12 @@ function renderReportCharts(record){
   const trendCtx = document.getElementById('chartReportTrend');
   chartService.lineChart('reportTrend', trendCtx, ['면접','2주','4주','현재'], [a.interview,a.train2w,a.settle4w,a.settle4w??a.train2w??a.interview], '#4F7CFF');
 
-  const radarCtx = document.getElementById('chartReportRadar');
-  const labels = RADAR_AXES.map(ax=>ax.label);
-  const iVals = RADAR_AXES.map(ax=>Number(record.scores.interview[ax.i])||0);
-  const tVals = RADAR_AXES.map(ax=>Number(record.scores.train2w[ax.t])||0);
-  const sVals = RADAR_AXES.map(ax=>Number(record.scores.settle4w[ax.s])||0);
-  chartService.radarChart('reportRadar', radarCtx, labels, [
-    { label:'면접',    data:iVals, borderColor:'#F5A524', backgroundColor:'rgba(245,165,36,.12)', pointRadius:2 },
-    { label:'신입교육', data:tVals, borderColor:'#4F7CFF', backgroundColor:'rgba(79,124,255,.12)', pointRadius:2 },
-    { label:'정착교육', data:sVals, borderColor:'#8B6FF0', backgroundColor:'rgba(139,111,240,.14)', pointRadius:2 },
+  const categoryCtx = document.getElementById('chartReportCategory');
+  const categoryLabels = SCORE_CATEGORIES.map(c=>c.label);
+  const trainVals = SCORE_CATEGORIES.map(c=>teacherService.categoryAvg(record.scores.train2w, TRAIN_SCORES, c.key)||0);
+  const settleVals = SCORE_CATEGORIES.map(c=>teacherService.categoryAvg(record.scores.settle4w, SETTLE_SCORES, c.key)||0);
+  chartService.groupedBarChart('reportCategory', categoryCtx, categoryLabels, [
+    { label:'신입교육', data:trainVals, backgroundColor:'#4F7CFF' },
+    { label:'정착교육', data:settleVals, backgroundColor:'#8B6FF0' },
   ]);
 }

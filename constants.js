@@ -59,21 +59,35 @@ const INTERVIEW_SCORES = [
   { key:'gesture',  label:'제스처 및 표정' },
   { key:'material', label:'자료 활용도' },
 ];
+// 신입교육/정착교육 평가는 코칭능력·회원관리·업무지식 3개 카테고리로 묶여 있고,
+// 카테고리마다 항목 3개씩(5점 척도)입니다. hasExam:true인 항목은 별점 옆에
+// 시험결과를 적는 칸이 추가로 나옵니다(신입: 내용이해도, 정착: 정책이해도).
+const SCORE_CATEGORIES = [
+  { key:'coaching',      label:'코칭능력' },
+  { key:'memberMgmt',    label:'회원관리' },
+  { key:'workKnowledge', label:'업무지식' },
+];
 const TRAIN_SCORES = [
-  { key:'contentTest',   label:'콘텐츠 테스트' },
-  { key:'systemSkill',   label:'시스템 조작도' },
-  { key:'coaching',      label:'코칭 평가' },
-  { key:'communication', label:'의사소통 역량' },
-  { key:'participation', label:'교육 참여도' },
-  { key:'taskUnderstand',label:'업무 이해도' },
+  { key:'trainContentUnderstand', label:'콘텐츠 이해도',   category:'coaching' },
+  { key:'trainProgramOperate',    label:'프로그램 조작도', category:'coaching' },
+  { key:'trainDelivery',          label:'내용 전달력',     category:'coaching' },
+  { key:'trainCommunication',     label:'의사소통능력',    category:'memberMgmt' },
+  { key:'trainTaskPerform',       label:'업무수행력',      category:'memberMgmt' },
+  { key:'trainProblemSolving',    label:'문제해결능력',    category:'memberMgmt' },
+  { key:'trainContentKnowledge',  label:'내용이해도',      category:'workKnowledge', hasExam:true },
+  { key:'trainParticipation',     label:'교육참여도',      category:'workKnowledge' },
+  { key:'trainCasOperate',        label:'CAS 조작',        category:'workKnowledge' },
 ];
 const SETTLE_SCORES = [
-  { key:'memberMgmt',     label:'회원 관리' },
-  { key:'featureIntro',   label:'기능 소개 역량' },
-  { key:'problemSolving', label:'문제 해결 능력' },
-  { key:'classDesign',    label:'수업 구성 능력' },
-  { key:'taskUnderstand2',label:'업무 이해도' },
-  { key:'contentUse',     label:'교육 내용 활용도' },
+  { key:'settleClassDesign',       label:'수업구성능력', category:'coaching' },
+  { key:'settleMemberFeedback',    label:'회원별피드백', category:'coaching' },
+  { key:'settleApplication',       label:'내용 응용력',  category:'coaching' },
+  { key:'settleCounselSat',        label:'상담만족도',   category:'memberMgmt' },
+  { key:'settleMemberMgmtAbility', label:'회원관리능력', category:'memberMgmt' },
+  { key:'settleProblemSolving',    label:'문제해결능력', category:'memberMgmt' },
+  { key:'settlePolicyUnderstand',  label:'정책이해도',   category:'workKnowledge', hasExam:true },
+  { key:'settleAccuracy',          label:'업무 정확성',  category:'workKnowledge' },
+  { key:'settleErrorRate',         label:'실수율',       category:'workKnowledge' },
 ];
 /* ============================================================
    SCORE_RUBRICS — 항목별 5점 척도 채점 기준
@@ -135,17 +149,13 @@ const SCORE_RUBRICS = {
     ],
   },
   // 신입교육/정착교육 항목은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
-  contentTest: null, systemSkill: null, coaching: null, communication: null, participation: null, taskUnderstand: null,
-  memberMgmt: null, featureIntro: null, problemSolving: null, classDesign: null, taskUnderstand2: null, contentUse: null,
+  trainContentUnderstand: null, trainProgramOperate: null, trainDelivery: null,
+  trainCommunication: null, trainTaskPerform: null, trainProblemSolving: null,
+  trainContentKnowledge: null, trainParticipation: null, trainCasOperate: null,
+  settleClassDesign: null, settleMemberFeedback: null, settleApplication: null,
+  settleCounselSat: null, settleMemberMgmtAbility: null, settleProblemSolving: null,
+  settlePolicyUnderstand: null, settleAccuracy: null, settleErrorRate: null,
 };
-
-const RADAR_AXES = [
-  { label:'전문성·수업력',      i:'content',  t:'contentTest',    s:'classDesign' },
-  { label:'시스템·기능 활용',   i:'material', t:'systemSkill',    s:'featureIntro' },
-  { label:'소통 역량',          i:'gesture',  t:'communication',  s:'memberMgmt' },
-  { label:'문제해결·참여도',    i:'envReady', t:'participation',  s:'problemSolving' },
-  { label:'업무 이해도',        i:'voice',    t:'taskUnderstand', s:'taskUnderstand2' },
-];
 
 const NAV = [
   { key:'dashboard',  label:'Dashboard',  icon:'◆', href:'index.html' },

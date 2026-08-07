@@ -234,8 +234,8 @@ function composeTeacherRecord(id, d){
     profileIncomplete: !!teacher.profileIncomplete,
     resumeMeta: teacher.resumeMeta || null,
     interview: { date:interview.date||'', script:interview.script||'', notes:interview.notes||[] },
-    train2w: { firstRpLink:training.firstRpLink||'', selfEval:training.selfEval||'', memo:training.memo||'' },
-    settle4w: { weeks: settlement.weeks || [{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''}] },
+    train2w: { firstRpLink:training.firstRpLink||'', selfEval:training.selfEval||'', memo:training.memo||'', examResult:training.examResult||'' },
+    settle4w: { weeks: settlement.weeks || [{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''}], examResult: settlement.examResult||'' },
     handover: report.handover || { strengths:'', cautions:'', classLevel:'', desiredMembers:'', currentMembers:'', opinion:'' },
     scores: { interview: interview.scores||{}, train2w: training.scores||{}, settle4w: settlement.scores||{} },
     history: report.history || [],
@@ -252,8 +252,8 @@ function splitTeacherRecord(id, t){
       status:t.status, memo:t.memo, dismissReason:t.dismissReason||'',
       profileIncomplete:!!t.profileIncomplete, resumeMeta:t.resumeMeta||null, createdAt:t.createdAt },
     interview: { date:t.interview.date, script:t.interview.script, notes:t.interview.notes, scores:t.scores.interview },
-    training: { firstRpLink:t.train2w.firstRpLink, selfEval:t.train2w.selfEval, memo:t.train2w.memo, scores:t.scores.train2w },
-    settlement: { weeks:t.settle4w.weeks, scores:t.scores.settle4w },
+    training: { firstRpLink:t.train2w.firstRpLink, selfEval:t.train2w.selfEval, memo:t.train2w.memo, examResult:t.train2w.examResult||'', scores:t.scores.train2w },
+    settlement: { weeks:t.settle4w.weeks, examResult:t.settle4w.examResult||'', scores:t.scores.settle4w },
     report: { handover:t.handover, history:t.history, evaluations:t.evaluations },
   };
 }

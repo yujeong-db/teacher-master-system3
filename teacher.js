@@ -21,8 +21,8 @@ class TeacherService {
       status:'interview', memo:'', dismissReason:'', profileIncomplete: !!basicInfo.profileIncomplete,
       resumeMeta: null,
       interview:{ date:'', script:'', notes:[] },
-      train2w:{ firstRpLink:'', selfEval:'', memo:'' },
-      settle4w:{ weeks:[{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''}] },
+      train2w:{ firstRpLink:'', selfEval:'', memo:'', examResult:'' },
+      settle4w:{ weeks:[{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''}], examResult:'' },
       handover:{ strengths:'', cautions:'', classLevel:'', desiredMembers:'', currentMembers:'', opinion:'' },
       scores:{ interview:{}, train2w:{}, settle4w:{} },
       history:[], evaluations:[], createdAt: Date.now(),
@@ -79,6 +79,10 @@ class TeacherService {
     const vals = fields.map(f=>Number(scoreObj[f.key])).filter(v=>v>0 && !isNaN(v));
     if(!vals.length) return null;
     return vals.reduce((a,b)=>a+b,0)/vals.length;
+  }
+  // 코칭능력/회원관리/업무지식처럼 fields를 카테고리로 묶었을 때, 특정 카테고리 항목들만의 평균
+  categoryAvg(scoreObj, fields, categoryKey){
+    return this.avgOf(scoreObj, fields.filter(f=>f.category===categoryKey));
   }
   stageAvgs(t){
     return {

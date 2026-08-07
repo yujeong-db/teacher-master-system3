@@ -13,13 +13,13 @@ class ReportService {
     const good = [], watch = [];
     const g = (v,label)=>{ if(Number(v)>=4.5) good.push(label); };
     const w = (v,label)=>{ if(Number(v)>0 && Number(v)<=2.5) watch.push(label); };
-    g(s.settle4w?.classDesign, '🏆 수업 우수'); g(s.interview?.content, '🏆 수업 우수');
-    g(s.settle4w?.memberMgmt, '🏆 회원관리 우수');
-    g(s.train2w?.communication, '🏆 소통 우수'); g(s.settle4w?.memberMgmt, '🏆 소통 우수');
-    g(s.train2w?.coaching, '🏆 피드백 반영 우수');
-    w(s.settle4w?.problemSolving, '⚠ 문제 해결 코칭 필요');
-    w(s.settle4w?.featureIntro, '⚠ 기능 설명 보완');
-    w(s.train2w?.coaching, '⚠ 상담 경험 부족');
+    g(s.settle4w?.settleClassDesign, '🏆 수업 우수'); g(s.interview?.content, '🏆 수업 우수');
+    g(s.settle4w?.settleMemberMgmtAbility, '🏆 회원관리 우수');
+    g(s.train2w?.trainCommunication, '🏆 소통 우수'); g(s.settle4w?.settleCounselSat, '🏆 소통 우수');
+    g(s.settle4w?.settleMemberFeedback, '🏆 피드백 반영 우수');
+    w(s.settle4w?.settleProblemSolving, '⚠ 문제 해결 코칭 필요');
+    w(s.settle4w?.settleAccuracy, '⚠ 업무 정확성 보완');
+    w(s.train2w?.trainProblemSolving, '⚠ 문제해결 경험 부족');
     return { good:[...new Set(good)].slice(0,4), watch:[...new Set(watch)].slice(0,4) };
   }
 

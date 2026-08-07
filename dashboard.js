@@ -162,17 +162,36 @@ function dDayInfo(dateStr){
   return { diff, label };
 }
 
+// 기수 시작일(cohort.date)이 곧 그 기수 교사들의 "입과일"로 취급됩니다.
+const RETENTION_CUTOFF_MS = 1000*60*60*24*30*3; // 30일 x 3 근사치(3개월)
+
 function cohortRecruitStats(cohort, teachers){
-  const eng = teachers.filter(t=>t.cohortId===cohort.id && t.job==='english').length;
-  const sub = teachers.filter(t=>t.cohortId===cohort.id && t.job==='subject').length;
+  const engTeachers = teachers.filter(t=>t.cohortId===cohort.id && t.job==='english');
+  const subTeachers = teachers.filter(t=>t.cohortId===cohort.id && t.job==='subject');
+  const eng = engTeachers.length, sub = subTeachers.length;
   const targetEng = Number(cohort.targetEnglish)||0;
   const targetSub = Number(cohort.targetSubject)||0;
+
+  // 3개월 경과 여부(=입과일 기준) 판단 후, 그 시점 기준으로 해촉되지 않은 비율을 "정착률"로 계산합니다.
+  const cohortStart = cohort.date ? new Date(cohort.date+'T00:00:00').getTime() : NaN;
+  const pastThreeMonths = !isNaN(cohortStart) && (Date.now()-cohortStart) >= RETENTION_CUTOFF_MS;
+  const retentionRate = (list)=>{
+    if(!pastThreeMonths || !list.length) return null;
+    const kept = list.filter(t=>t.status!=='dismissed').length;
+    return (kept/list.length)*100;
+  };
+
   return {
     eng, sub, targetEng, targetSub,
     total: eng+sub, target: targetEng+targetSub,
     remainEng: Math.max(targetEng-eng,0),
     remainSub: Math.max(targetSub-sub,0),
     remain: Math.max((targetEng+targetSub)-(eng+sub),0),
+    rateEng: targetEng>0 ? Math.min(100,(eng/targetEng)*100) : null,
+    rateSub: targetSub>0 ? Math.min(100,(sub/targetSub)*100) : null,
+    pastThreeMonths,
+    retentionEng: retentionRate(engTeachers),
+    retentionSub: retentionRate(subTeachers),
   };
 }
 
@@ -197,11 +216,11 @@ function cohortRowHtml(c, teachers, isHidden){
     <div class="cr-jobs">
       <div class="cr-job">
         <span>${JOB_TYPES.english.label}</span>
-        <span class="cr-job-nums">목표 <input type="number" min="0" class="cf-target-input" data-id="${c.id}" data-job="targetEnglish" value="${stats.targetEng}" ${c.completed?'disabled':''}> 명 · 완료 ${stats.eng}명 · 추가 ${stats.remainEng}명</span>
+        <span class="cr-job-nums">목표 <input type="number" min="0" class="cf-target-input" data-id="${c.id}" data-job="targetEnglish" value="${stats.targetEng}" ${c.completed?'disabled':''}> 명 · 완료 ${stats.eng}명 · 추가 ${stats.remainEng}명${stats.rateEng!==null?` · 달성률 <b>${stats.rateEng.toFixed(0)}%</b>`:''}${stats.retentionEng!==null?` · 3개월 정착률 <b>${stats.retentionEng.toFixed(0)}%</b>`:''}</span>
       </div>
       <div class="cr-job">
         <span>${JOB_TYPES.subject.label}</span>
-        <span class="cr-job-nums">목표 <input type="number" min="0" class="cf-target-input" data-id="${c.id}" data-job="targetSubject" value="${stats.targetSub}" ${c.completed?'disabled':''}> 명 · 완료 ${stats.sub}명 · 추가 ${stats.remainSub}명</span>
+        <span class="cr-job-nums">목표 <input type="number" min="0" class="cf-target-input" data-id="${c.id}" data-job="targetSubject" value="${stats.targetSub}" ${c.completed?'disabled':''}> 명 · 완료 ${stats.sub}명 · 추가 ${stats.remainSub}명${stats.rateSub!==null?` · 달성률 <b>${stats.rateSub.toFixed(0)}%</b>`:''}${stats.retentionSub!==null?` · 3개월 정착률 <b>${stats.retentionSub.toFixed(0)}%</b>`:''}</span>
       </div>
     </div>
   </div>`;
