@@ -74,7 +74,7 @@ function renderHeroOnly(){
     `<span class="badge status-${record.status}">${st.label}</span>`,
     ...(record.profileIncomplete ? [`<span class="profile-warn-badge">● 개인정보 등록 필요</span>`] : []),
     ...badges.good.map(b=>`<span class="tag-mini" style="background:var(--green-dim);color:var(--green)">${b}</span>`),
-    ...badges.watch.map(b=>`<span class="tag-mini" style="background:var(--red-dim);color:var(--red)">${b}</span>`),
+    ...badges.watch.map(w=>`<span class="tag-mini" style="background:var(--red-dim);color:var(--red)">⚠ ${w.label}</span>`),
   ].join('');
 
   document.getElementById('heroSection').innerHTML = `
@@ -523,21 +523,18 @@ function renderHandoverTab(record){
 // labels/values/colors 배열을 만듭니다. (카테고리별 분석 막대그래프용)
 function buildCategoryItemsData(cat, record){
   const trainItems = TRAIN_SCORES.filter(f=>f.category===cat.key);
-  const settleItems = SETTLE_SCORES.filter(f=>f.category===cat.key);
   const labels = [], values = [], colors = [];
-  const n = Math.max(trainItems.length, settleItems.length);
-  for(let i=0;i<n;i++){
-    if(trainItems[i]){
-      labels.push(trainItems[i].label);
-      values.push(Number(record.scores.train2w[trainItems[i].key]) || 0);
-      colors.push('#F5B940');
-    }
-    if(settleItems[i]){
-      labels.push(settleItems[i].label);
-      values.push(Number(record.scores.settle4w[settleItems[i].key]) || 0);
+  trainItems.forEach(t=>{
+    labels.push(t.label);
+    values.push(Number(record.scores.train2w[t.key]) || 0);
+    colors.push('#F5B940');
+    const pair = SETTLE_SCORES.find(s=>s.key===t.pairKey);
+    if(pair){
+      labels.push(pair.label);
+      values.push(Number(record.scores.settle4w[pair.key]) || 0);
       colors.push('#EB7A3C');
     }
-  }
+  });
   return { labels, values, colors };
 }
 
