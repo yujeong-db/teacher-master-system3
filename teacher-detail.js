@@ -428,12 +428,12 @@ function renderInterviewTab(record){
 
 // 코칭능력/회원관리/업무지식 카테고리별로 별점 항목을 묶어서 렌더링합니다.
 // (신입교육/정착교육 탭에서 공용으로 사용) hasExam인 항목 옆에는 시험결과 입력칸이 붙습니다.
-function renderScoreCategoryGroups(section, scoreObj, fields, examResultValue){
+function renderScoreCategoryGroups(section, scoreObj, fields, examResultValue, notesObj={}){
   return SCORE_CATEGORIES.map(cat=>{
     const items = fields.filter(f=>f.category===cat.key);
     const avg = teacherService.categoryAvg(scoreObj, fields, cat.key);
     const stars = items.map(f=>{
-      let widget = ui.starWidget(section, f.key, scoreObj[f.key], f.label);
+      let widget = ui.starWidget(section, f.key, scoreObj[f.key], f.label, notesObj[f.key]);
       if(f.hasExam){
         widget += `<div class="field exam-result-field"><label>시험결과</label><input type="text" data-field="${section}.examResult" value="${ui.escapeHtml(examResultValue)}" placeholder="예: 92점"/></div>`;
       }
@@ -450,7 +450,7 @@ function renderScoreCategoryGroups(section, scoreObj, fields, examResultValue){
 function renderTrain2wTab(record){
   const tr = record.train2w;
   const avg = teacherService.avgOf(record.scores.train2w, TRAIN_SCORES);
-  const groups = renderScoreCategoryGroups('train2w', record.scores.train2w, TRAIN_SCORES, tr.examResult);
+  const groups = renderScoreCategoryGroups('train2w', record.scores.train2w, TRAIN_SCORES, tr.examResult, record.scoreNotes?.train2w||{});
   return `<div class="card card-pad">
     <h3 class="card-title">신입교육 2주 평가</h3><p class="card-sub">${avg!==null?`평균 <b>${avg.toFixed(1)} / 5.0</b>`:'코칭능력·회원관리·업무지식 3개 영역을 항목별 5점 척도로 평가합니다.'}</p>
     ${groups}
@@ -472,7 +472,7 @@ function renderTrain2wTab(record){
 /* ---- 정착교육 (코칭능력/회원관리/업무지식 3개 카테고리 + 주차별 기록) ---- */
 function renderSettle4wTab(record){
   const avg = teacherService.avgOf(record.scores.settle4w, SETTLE_SCORES);
-  const groups = renderScoreCategoryGroups('settle4w', record.scores.settle4w, SETTLE_SCORES, record.settle4w.examResult);
+  const groups = renderScoreCategoryGroups('settle4w', record.scores.settle4w, SETTLE_SCORES, record.settle4w.examResult, record.scoreNotes?.settle4w||{});
   const weeks = record.settle4w.weeks || [{},{},{},{}];
   const weekCards = weeks.map((w,idx)=>`
     <div class="week-card">

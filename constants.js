@@ -150,10 +150,98 @@ const SCORE_RUBRICS = {
       { score:1, title:'매우 미흡', text:'주어진 학습 자료나 교구를 전혀 활용하지 않고 말로만 때우거나, 기기 조작 미숙으로 모의 수업 진행 자체가 원활하지 않다.' },
     ],
   },
-  // 신입교육/정착교육 항목은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
-  trainContentUnderstand: null, trainProgramOperate: null, trainDelivery: null,
-  trainCommunication: null, trainTaskPerform: null, trainProblemSolving: null,
-  trainContentKnowledge: null, trainParticipation: null, trainCasOperate: null,
+  /* ---- 신입교육(TRAIN_SCORES) 채점 기준 ---- */
+  trainContentUnderstand: {
+    desc: '무엇을 가르치는지 알고 있는가?',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'캐잉의 주요 교과 및 영어 콘텐츠의 기본적인 구성과 종류를 부분적으로 알고 있다. (테스트 7~10점)' },
+      { score:2, title:'미흡', text:'캐잉의 교과·영어 콘텐츠와 부가 콘텐츠의 주요 기능과 쓰임을 설명할 수 있다. (테스트 11~13점)' },
+      { score:3, title:'보통', text:'담당 학년·레벨에서 사용하는 콘텐츠의 전체 구성과 학습 흐름을 설명할 수 있다. (테스트 14~16점)' },
+      { score:4, title:'우수', text:'담당 학년·레벨에서 사용하는 콘텐츠의 세부 내용과 학습 목적을 정확하게 설명할 수 있다. (테스트 17~19점)' },
+      { score:5, title:'매우 우수', text:'학생의 수준과 상황에 따라 적절한 콘텐츠·기능·스케줄을 선택하고, 선택 이유와 활용 방법까지 설명할 수 있다. (테스트 20점)' },
+    ],
+  },
+  trainProgramOperate: {
+    desc: '수업을 실제로 운영할 수 있는가?',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'안내를 받아 코칭룸 입장 및 교안 준비가 가능하다.' },
+      { score:2, title:'미흡', text:'코칭룸 입장, 교안 준비 및 기본적인 수업 동선을 독립적으로 수행한다.' },
+      { score:3, title:'보통', text:'발표 시작, 공동판서, 학생용 교안 공유, 화면 공유 등 기본적인 수업 기능을 순서에 맞게 수행한다.' },
+      { score:4, title:'우수', text:'수업 흐름에 따라 필요한 기능을 스스로 판단하여 조작하고, 오류 발생 시 원인을 찾아 해결한다.' },
+      { score:5, title:'매우 우수', text:'수업 중 발생하는 교사·학생 기기의 일반적인 문제를 스스로 진단·해결하고 필요한 후속 조치까지 수행한다.' },
+    ],
+  },
+  trainDelivery: {
+    desc: '학생에게 제대로 가르칠 수 있는가?',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'교재의 음원이나 문장을 그대로 제시하며 교사의 추가적인 설명이나 확인이 거의 없다.' },
+      { score:2, title:'미흡', text:'핵심 단어와 문장을 제시하고 반복·따라 말하기를 통해 기본적인 내용을 전달한다.' },
+      { score:3, title:'보통', text:'학습 목표와 핵심 내용을 명확하게 제시하고 기본적인 설명과 예시를 활용한다.' },
+      { score:4, title:'우수', text:'학생의 반응과 이해도를 확인하며 추가 설명, 예시, 질문 등을 활용하여 이해를 돕는다.' },
+      { score:5, title:'매우 우수', text:'학생의 수준·반응·학습 속도에 따라 설명 방식과 난이도를 조절하고, 학생이 스스로 이해하고 활용하도록 이끈다.' },
+    ],
+  },
+  trainCommunication: {
+    desc: '상대방에게 정확하게 전달하고, 상대의 의도를 파악하는 능력',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'내가 전달해야 하는 핵심 내용을 일부만 전달할 수 있으며, 설명 과정에서 누락되는 내용이 많다.' },
+      { score:2, title:'미흡', text:'내가 전달해야 하는 내용을 대부분 빠짐없이 전달할 수 있으나, 상대방의 질문이나 반응에 대한 대응은 미흡하다.' },
+      { score:3, title:'보통', text:'전달해야 할 내용을 정확하게 설명하고, 통화 흐름을 주도하며 학부모의 기본적인 질문에 적절하게 답변할 수 있다.' },
+      { score:4, title:'우수', text:'학부모의 질문 중 본인이 모르는 내용이 나와도 당황하지 않고, 확인이 필요한 부분을 안내하거나 적절한 방법으로 대응할 수 있다.' },
+      { score:5, title:'매우 우수', text:'학부모의 질문과 반응을 통해 궁금해하거나 걱정하는 부분을 먼저 파악하고, 필요한 정보를 선제적으로 설명할 수 있다.' },
+    ],
+  },
+  trainTaskPerform: {
+    desc: '주어진 업무를 스스로 확인하고 정확하게 완료하는 능력',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'미션이나 업무를 수행하는 데 어려움이 크며, 안내를 받아도 결과물을 완성하지 못한다.' },
+      { score:2, title:'미흡', text:'팀장의 구체적인 안내와 도움을 받아 미션이나 업무를 수행하고 결과물을 제출할 수 있다.' },
+      { score:3, title:'보통', text:'라인 공지사항 및 제공된 자료를 스스로 확인하여 필요한 업무를 수행하고 제출할 수 있다.' },
+      { score:4, title:'우수', text:'공지사항과 업무 내용을 스스로 확인하고, 정해진 시간과 기준에 맞춰 정확하게 업무를 완료한다.' },
+      { score:5, title:'매우 우수', text:'주어진 업무를 수행하는 것에 그치지 않고, 교육에서 배운 내용을 다른 업무나 상황에 응용하여 스스로 추가적인 업무를 수행한다.' },
+    ],
+  },
+  trainProblemSolving: {
+    desc: '모르는 상황에서 멈추지 않고 해결책을 찾아 적용하는 능력',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'모르는 상황이나 문제가 발생하면 스스로 해결하지 못하고 상황을 멈춘 채 기다린다.' },
+      { score:2, title:'미흡', text:'모르는 상황이나 문제가 발생하면 스스로 도움을 요청하여 해결한다.' },
+      { score:3, title:'보통', text:'문제가 발생했을 때 교육자료, 매뉴얼, 라인 공지사항 등을 스스로 찾아보며 해결 방법을 확인한다.' },
+      { score:4, title:'우수', text:'문제가 발생하기 전에 발생 가능한 상황을 예상하고 필요한 내용을 미리 질문하거나 확인한다.' },
+      { score:5, title:'매우 우수', text:'기존에 배운 내용과 경험을 응용하여 처음 접하는 상황에서도 적절한 해결 방법을 스스로 판단하고 실행한다.' },
+    ],
+  },
+  trainContentKnowledge: {
+    desc: '콘텐츠 / 업무 프로세스 / 그룹코칭 이해 / 보다에듀 / CAS — 5개 영역 중 이해한 과목의 개수로 점수를 제공합니다.',
+    criteria: [
+      { score:1, title:'1개 영역', text:'5개 영역(콘텐츠, 업무 프로세스, 그룹코칭 이해, 보다에듀, CAS) 중 1개 영역을 이해하고 있다.' },
+      { score:2, title:'2개 영역', text:'5개 영역 중 2개 영역을 이해하고 있다.' },
+      { score:3, title:'3개 영역', text:'5개 영역 중 3개 영역을 이해하고 있다.' },
+      { score:4, title:'4개 영역', text:'5개 영역 중 4개 영역을 이해하고 있다.' },
+      { score:5, title:'5개 영역', text:'5개 영역을 모두 이해하고 있다.' },
+    ],
+  },
+  trainParticipation: {
+    desc: '교육에 참여하는 태도와 적극성을 평가합니다.',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'교육에 지각하거나 불참하는 경우가 있으며, 교육 중에도 참여가 원활하지 않다.' },
+      { score:2, title:'미흡', text:'교육에는 참여하지만 집중력이 자주 흐트러지며, 안내가 있어야 교육 활동에 참여한다.' },
+      { score:3, title:'보통', text:'정해진 시간에 참여하고 교육 내용을 따라가며, 주어진 활동과 미션을 수행한다.' },
+      { score:4, title:'우수', text:'교육에 적극적으로 참여하며, 교육 중 궁금한 점이나 이해가 부족한 부분을 스스로 확인하고 질문한다.' },
+      { score:5, title:'매우 우수', text:'교육 내용을 적극적으로 활용하고, 교육 후에도 관련 내용을 추가로 질문하거나 실제 업무에 적용하려는 모습을 보인다.' },
+    ],
+  },
+  trainCasOperate: {
+    desc: 'CAS(회원관리 시스템) 조작 숙련도를 평가합니다.',
+    criteria: [
+      { score:1, title:'매우 미흡', text:'필요한 회원을 검색하여 찾을 수 있다.' },
+      { score:2, title:'미흡', text:'회원 검색 후 코칭 이력 작성, 코칭 일정 확인, 교안 다운로드 등 기본적인 회원 관리 기능을 수행할 수 있다.' },
+      { score:3, title:'보통', text:'필요한 회원의 코칭을 위해 코칭룸을 스스로 생성하고 기본적인 수업 준비를 완료할 수 있다.' },
+      { score:4, title:'우수', text:'상품 및 회원의 상황에 따라 첫 상담 이력을 적절하게 구분하여 작성할 수 있다.' },
+      { score:5, title:'매우 우수', text:'회원의 학습 상황과 상품 특성을 고려하여 적절한 스케줄을 스스로 설정하고 필요한 CAS 기능을 종합적으로 활용할 수 있다.' },
+    ],
+  },
+  // 정착교육 항목은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
   settleClassDesign: null, settleMemberFeedback: null, settleApplication: null,
   settleCounselSat: null, settleMemberMgmtAbility: null, settleProblemSolving: null,
   settlePolicyUnderstand: null, settleAccuracy: null, settleErrorRate: null,

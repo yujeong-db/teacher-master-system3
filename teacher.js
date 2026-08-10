@@ -25,6 +25,8 @@ class TeacherService {
       settle4w:{ weeks:[{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''},{memo:'',feedback:'',notes:''}], examResult:'' },
       handover:{ strengths:'', cautions:'', classLevel:'', desiredMembers:'', currentMembers:'', opinion:'' },
       scores:{ interview:{}, train2w:{}, settle4w:{} },
+      // 별점 옆 "근거/행동 기록" 자유서술. scores와 같은 key 구조로 문항별 텍스트를 저장합니다.
+      scoreNotes:{ train2w:{}, settle4w:{} },
       history:[], evaluations:[], createdAt: Date.now(),
     };
   }

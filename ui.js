@@ -68,13 +68,16 @@ class UIService {
   // 별점 위젯 (재사용 가능한 순수 HTML 조각). 이미 매긴 별점을 0점(미평가)으로
   // 되돌릴 수 있도록 별점 옆에 "초기화" 버튼을 함께 렌더링합니다.
   // 라벨 옆의 ⓘ 아이콘에 마우스를 올리면 1~5점 채점 기준을 볼 수 있습니다.
-  starWidget(section, key, value, label){
+  // note: 별점 항목 옆 "근거/행동 기록" 자유서술 값. 점수가 매겨지면(v>0) 입력칸이 함께 나타납니다.
+  starWidget(section, key, value, label, note=''){
     const v = Number(value)||0;
     let stars = '';
     for(let i=1;i<=5;i++) stars += `<span class="star ${i<=v?'filled':''}" data-action="setScore" data-section="${section}" data-key="${key}" data-val="${i}">★</span>`;
+    const noteBlock = v ? `<div class="field score-note-field"><label>근거 / 행동 기록</label><textarea data-field="scoreNotes.${section}.${key}" data-autosize placeholder="이 점수를 준 근거가 되는 구체적인 행동을 적어주세요.">${this.escapeHtml(note)}</textarea></div>` : '';
     return `<div class="star-field">
       <div class="sf-label"><span>${label}${this.rubricTip(key)}</span>${v?`<b>${v}.0</b>`:''}</div>
       <div class="stars">${stars}${v?`<button type="button" class="star-reset" data-action="resetScore" data-section="${section}" data-key="${key}">초기화</button>`:''}</div>
+      ${noteBlock}
     </div>`;
   }
 
