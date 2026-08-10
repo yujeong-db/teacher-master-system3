@@ -67,16 +67,18 @@ const SCORE_CATEGORIES = [
   { key:'memberMgmt',    label:'회원관리' },
   { key:'workKnowledge', label:'업무지식' },
 ];
+// pairKey: 최종리포트 '카테고리별 분석' 막대그래프에서 이 신입교육 항목과
+// 나란히 비교해서 보여줄 정착교육(SETTLE_SCORES) 항목의 key입니다.
 const TRAIN_SCORES = [
-  { key:'trainContentUnderstand', label:'콘텐츠 이해도',   category:'coaching' },
-  { key:'trainProgramOperate',    label:'프로그램 조작도', category:'coaching' },
-  { key:'trainDelivery',          label:'내용 전달력',     category:'coaching' },
-  { key:'trainCommunication',     label:'의사소통능력',    category:'memberMgmt' },
-  { key:'trainTaskPerform',       label:'업무수행력',      category:'memberMgmt' },
-  { key:'trainProblemSolving',    label:'문제해결능력',    category:'memberMgmt' },
-  { key:'trainContentKnowledge',  label:'내용이해도',      category:'workKnowledge', hasExam:true },
-  { key:'trainParticipation',     label:'교육참여도',      category:'workKnowledge' },
-  { key:'trainCasOperate',        label:'CAS 조작',        category:'workKnowledge' },
+  { key:'trainContentUnderstand', label:'콘텐츠 이해도',   category:'coaching',      pairKey:'settleClassDesign' },
+  { key:'trainProgramOperate',    label:'프로그램 조작도', category:'coaching',      pairKey:'settleMemberFeedback' },
+  { key:'trainDelivery',          label:'내용 전달력',     category:'coaching',      pairKey:'settleApplication' },
+  { key:'trainCommunication',     label:'의사소통능력',    category:'memberMgmt',    pairKey:'settleCounselSat' },
+  { key:'trainTaskPerform',       label:'업무수행력',      category:'memberMgmt',    pairKey:'settleMemberMgmtAbility' },
+  { key:'trainProblemSolving',    label:'문제해결능력',    category:'memberMgmt',    pairKey:'settleProblemSolving' },
+  { key:'trainContentKnowledge',  label:'내용이해도',      category:'workKnowledge', pairKey:'settlePolicyUnderstand', hasExam:true },
+  { key:'trainParticipation',     label:'교육참여도',      category:'workKnowledge', pairKey:'settleErrorRate' },
+  { key:'trainCasOperate',        label:'CAS 조작',        category:'workKnowledge', pairKey:'settleAccuracy' },
 ];
 const SETTLE_SCORES = [
   { key:'settleClassDesign',       label:'수업구성능력', category:'coaching' },
