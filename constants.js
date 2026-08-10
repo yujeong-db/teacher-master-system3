@@ -84,7 +84,7 @@ const SETTLE_SCORES = [
   { key:'settleClassDesign',       label:'수업구성능력', category:'coaching' },
   { key:'settleMemberFeedback',    label:'회원별피드백', category:'coaching' },
   { key:'settleApplication',       label:'내용 응용력',  category:'coaching' },
-  { key:'settleCounselSat',        label:'상담만족도',   category:'memberMgmt' },
+  { key:'settleCounselSat',        label:'회원소통만족도', category:'memberMgmt' },
   { key:'settleMemberMgmtAbility', label:'회원관리능력', category:'memberMgmt' },
   { key:'settleProblemSolving',    label:'문제해결능력', category:'memberMgmt' },
   { key:'settlePolicyUnderstand',  label:'정책이해도',   category:'workKnowledge', hasExam:true },
@@ -241,9 +241,68 @@ const SCORE_RUBRICS = {
       { score:5, title:'매우 우수', text:'회원의 학습 상황과 상품 특성을 고려하여 적절한 스케줄을 스스로 설정하고 필요한 CAS 기능을 종합적으로 활용할 수 있다.' },
     ],
   },
-  // 정착교육 항목은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
-  settleClassDesign: null, settleMemberFeedback: null, settleApplication: null,
-  settleCounselSat: null, settleMemberMgmtAbility: null, settleProblemSolving: null,
+  /* ---- 정착교육(SETTLE_SCORES) 채점 기준 ---- */
+  settleClassDesign: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'수업 시간 안에 전체 내용을 진행하는 데 어려움이 있으며, 시간 부족으로 일부 학습 내용을 진행하지 못한다.' },
+      { score:2, title:'미흡', text:'정해진 시간에 맞춰 가이드와 교안을 따라 수업의 전체 흐름을 안정적으로 진행한다.' },
+      { score:3, title:'보통', text:'수업의 핵심 내용을 파악하고 판서·교안 등을 활용하여 중요한 내용을 강조하며 수업한다.' },
+      { score:4, title:'우수', text:'배운 내용을 응용하여 학생이 이해하기 쉬운 다양한 예시와 설명을 추가하여 수업한다.' },
+      { score:5, title:'매우 우수', text:'학생의 반응과 참여도를 고려하여 수업 활동이나 진행 방식을 유연하게 변경하고, 학생이 직접 참여할 수 있도록 수업을 구성한다.' },
+    ],
+  },
+  settleMemberFeedback: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'전체 회원을 대상으로만 수업하며, 개별 회원의 반응이나 도움 요청을 충분히 확인하지 못한다.' },
+      { score:2, title:'미흡', text:'일부 회원의 도움 요청이나 학습 어려움을 확인하지만 적절하게 대응하지 못하는 경우가 있다.' },
+      { score:3, title:'보통', text:'수업 중 개별 회원과 1:1 대화를 시도하고 필요한 도움을 제공할 수 있다.' },
+      { score:4, title:'우수', text:'개별 학생의 수준과 이해도를 파악하여 학생에게 필요한 설명이나 도움의 수준을 조절하여 제공한다.' },
+      { score:5, title:'매우 우수', text:'학생의 수준·학습 상태·반응을 종합적으로 파악하여 개별 학생에게 필요한 학습 활동이나 다음 학습 목표를 설정하고 약속할 수 있다.' },
+    ],
+  },
+  settleApplication: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'수업 내용을 충분히 이해하지 못하여 교재의 일부 내용만 선택적으로 진행하거나 학습 흐름을 임의로 변경한다.' },
+      { score:2, title:'미흡', text:'교재·음원·제공 자료를 가이드에 따라 그대로 활용하여 수업한다.' },
+      { score:3, title:'보통', text:'수업 시간과 학생의 반응에 따라 기존 활동의 순서나 진행 방법에 적절한 변화를 줄 수 있다.' },
+      { score:4, title:'우수', text:'배운 내용을 바탕으로 같은 학습 목표를 가진 추가 예시나 유사 문제를 제시하여 학생의 이해를 확장한다.' },
+      { score:5, title:'매우 우수', text:'배운 내용을 학생의 수준과 학습 목적에 맞게 새로운 형태로 재구성하고, 판서·자료·활동 등을 활용하여 학생이 내용을 스스로 정리하고 활용할 수 있도록 한다.' },
+    ],
+  },
+  settleCounselSat: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'상담 과정에서 회원의 요구를 충분히 파악하지 못하고, 불만이나 교사 변경 요청으로 이어지는 경우가 있다.' },
+      { score:2, title:'미흡', text:'회원의 문의에 기본적인 응대는 가능하지만, 회원의 요구나 불편사항을 충분히 해소하지 못하는 경우가 있다.' },
+      { score:3, title:'보통', text:'회원의 문의에 적절하게 응대하고, 필요한 정보를 정확하게 전달하여 기본적인 상담 만족을 유지한다.' },
+      { score:4, title:'우수', text:'회원의 상황과 요구를 파악하여 적절한 해결 방법을 제시하고 지속적으로 소통한다.' },
+      { score:5, title:'매우 우수', text:'회원의 요구를 선제적으로 파악하고 적절한 안내와 후속 조치를 제공하여, 회원이 교사를 신뢰하고 지속적으로 소통하려는 관계를 형성한다.' },
+    ],
+  },
+  settleMemberMgmtAbility: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'코칭 등록이나 회원 관련 기본 업무를 누락하거나 놓치는 경우가 있다.' },
+      { score:2, title:'미흡', text:'첫 상담, 코칭 이력 작성, 코칭룸 생성 등 기본적인 회원 관리 업무를 수행할 수 있다.' },
+      { score:3, title:'보통', text:'회원의 특이사항과 상담·코칭 내용을 필요한 곳에 정확하게 기록하고 이후 업무에 활용할 수 있다.' },
+      { score:4, title:'우수', text:'회원별로 필요한 업무와 일정을 주기적으로 확인하고 누락 없이 관리한다.' },
+      { score:5, title:'매우 우수', text:'회원의 과거 상담·코칭 내용과 예정된 업무를 바탕으로 향후 필요한 업무를 미리 파악하고 선제적으로 소통한다.' },
+    ],
+  },
+  settleProblemSolving: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'모르는 내용에 대해 확인하지 않고 부정확한 정보를 안내하거나, 문제가 발생하면 적절한 대응을 하지 못한다.' },
+      { score:2, title:'미흡', text:'문제가 발생하면 스스로 해결 방법을 찾기보다 담당 팀장에게 해결 방법을 문의한다.' },
+      { score:3, title:'보통', text:'교육자료, 공지사항, 기존 업무 내용을 활용하여 스스로 해결을 시도하고, 확인이 필요한 내용은 추가 확인 후 정확하게 안내한다.' },
+      { score:4, title:'우수', text:'문제 상황에서 알고 있는 내용을 먼저 정리하여 회원에게 상황과 해결 방법을 정확하게 안내하고, 필요한 경우 적절하게 도움을 요청한다.' },
+      { score:5, title:'매우 우수', text:'문제의 원인과 우선순위를 스스로 판단하고, 본인이 해결할 수 있는 문제는 독립적으로 처리하며 필요한 경우 적절한 담당자에게 도움을 요청하여 끝까지 해결한다.' },
+    ],
+  },
+  // 정책이해도/업무 정확성/실수율은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
   settlePolicyUnderstand: null, settleAccuracy: null, settleErrorRate: null,
 };
 
