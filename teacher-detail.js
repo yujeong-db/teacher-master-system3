@@ -519,6 +519,28 @@ function renderHandoverTab(record){
 }
 
 /* ---- 최종리포트 ---- */
+// 카테고리 1개에 속한 신입교육 항목 3개 + 정착교육 항목 3개를 번갈아 나열한
+// labels/values/colors 배열을 만듭니다. (카테고리별 분석 막대그래프용)
+function buildCategoryItemsData(cat, record){
+  const trainItems = TRAIN_SCORES.filter(f=>f.category===cat.key);
+  const settleItems = SETTLE_SCORES.filter(f=>f.category===cat.key);
+  const labels = [], values = [], colors = [];
+  const n = Math.max(trainItems.length, settleItems.length);
+  for(let i=0;i<n;i++){
+    if(trainItems[i]){
+      labels.push(trainItems[i].label);
+      values.push(Number(record.scores.train2w[trainItems[i].key]) || 0);
+      colors.push('#F5B940');
+    }
+    if(settleItems[i]){
+      labels.push(settleItems[i].label);
+      values.push(Number(record.scores.settle4w[settleItems[i].key]) || 0);
+      colors.push('#EB7A3C');
+    }
+  }
+  return { labels, values, colors };
+}
+
 function renderReportTab(record){
   const a = teacherService.stageAvgs(record);
   const growth = teacherService.growthPct(record);
@@ -534,26 +556,24 @@ function renderReportTab(record){
 
   const categoryChartsHtml = SCORE_CATEGORIES.map(cat=>`
     <div>
-      <div style="text-align:center;font-size:12.5px;font-weight:700;color:var(--ink-dim);margin-bottom:6px">${cat.label}</div>
-      <div class="chart-h" style="height:200px"><canvas id="chartReportCat_${cat.key}"></canvas></div>
+      <div style="text-align:center;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px">${cat.label}</div>
+      <div class="chart-h" style="height:220px"><canvas id="chartReportCat_${cat.key}"></canvas></div>
+    </div>`).join('');
+
+  const weeksHtml = (record.settle4w.weeks||[]).slice(0,4).map((w,i)=>`
+    <div style="padding:10px 12px;background:var(--bg);border-radius:10px">
+      <div style="font-weight:700;font-size:12px;margin-bottom:3px">${i+1}주차</div>
+      <div style="font-size:12.5px;line-height:1.6">${w.feedback ? ui.escapeHtml(w.feedback) : '<span class="card-sub">기록 없음</span>'}</div>
     </div>`).join('');
 
   return `<div>
-    <div class="card card-pad" style="margin-bottom:16px">
-      <h3 class="card-title">성장 그래프</h3><p class="card-sub">면접 → 2주 → 4주 → 현재</p>
-      <div class="chart-h"><canvas id="chartReportTrend"></canvas></div>
-    </div>
-    <div class="card card-pad" style="margin-bottom:16px">
-      <h3 class="card-title">카테고리별 비교</h3><p class="card-sub">코칭능력·회원관리·업무지식 — 신입교육 vs 정착교육 평균 점수</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">${categoryChartsHtml}</div>
-    </div>
     <div class="two-col" style="margin-bottom:16px">
       <div class="card card-pad">
-        <h3 class="card-title">성장률</h3>
+        <h3 class="card-title">성장률</h3><p class="card-sub">신입교육 2주 → 정착교육 4주(최종)</p>
         <div class="growth-box">
-          <div><div class="growth-num">${a.interview!==null?a.interview.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">면접</div></div>
+          <div><div class="growth-num">${a.train2w!==null?a.train2w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">신입교육 2주</div></div>
           <div style="font-size:20px;color:var(--ink-faint)">→</div>
-          <div><div class="growth-num">${(a.settle4w??a.train2w)!=null?(a.settle4w??a.train2w).toFixed(1):'–'}</div><div class="card-sub" style="margin:0">최종</div></div>
+          <div><div class="growth-num">${a.settle4w!==null?a.settle4w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">정착교육 4주(최종)</div></div>
           ${growth!==null?`<span class="growth-arrow ${growthUp?'up':'down'}">${growthUp?'▲':'▼'} ${Math.abs(growth).toFixed(1)}%</span>`:''}
         </div>
       </div>
@@ -563,9 +583,17 @@ function renderReportTab(record){
       </div>
     </div>
     <div class="card card-pad" style="margin-bottom:16px">
+      <h3 class="card-title">카테고리별 분석</h3><p class="card-sub">코칭능력·회원관리·업무지식 — 신입교육(●)·정착교육(●) 항목별 점수</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin-bottom:10px;font-size:11.5px;color:var(--ink-soft)">
+        <span><i style="display:inline-block;width:9px;height:9px;background:#F5B940;border-radius:2px;margin-right:4px"></i>신입교육</span>
+        <span><i style="display:inline-block;width:9px;height:9px;background:#EB7A3C;border-radius:2px;margin-right:4px"></i>정착교육</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">${categoryChartsHtml}</div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:16px">
       <div class="ai-card"><div class="ai-label">✨ AI 성장 분석</div>${aiAnalysis}</div>
     </div>
-    <div class="two-col" style="grid-template-columns:1fr 1fr;gap:16px">
+    <div class="two-col" style="grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
       <div class="card card-pad">
         <h3 class="card-title">강점</h3>
         <p style="font-size:13px;line-height:1.7">${strengthSentence}</p>
@@ -573,8 +601,33 @@ function renderReportTab(record){
       </div>
       <div class="card card-pad">
         <h3 class="card-title">보완 필요 영역</h3>
-        <div style="display:flex;gap:7px;flex-wrap:wrap">${badges.watch.length? badges.watch.map(b=>`<span class="tag-mini" style="background:var(--red-dim);color:var(--red)">${b.replace('⚠ ','')}</span>`).join(''):'<span class="card-sub">뚜렷한 약점이 보이지 않아요 👍</span>'}</div>
+        ${badges.watch.length? badges.watch.map(w=>`
+          <div style="margin-bottom:9px;padding:9px 11px;background:var(--red-dim);border-radius:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+              <span style="font-weight:700;font-size:12.5px;color:var(--red)">⚠ ${w.label}</span>
+              <span style="font-size:11px;color:var(--ink-faint)">${w.value.toFixed(1)}점</span>
+            </div>
+            <div style="font-size:12.5px;line-height:1.6">${w.advice}</div>
+            ${w.training?`<div style="font-size:11.5px;color:var(--ink-soft);margin-top:3px">📚 추천 교육: ${w.training}</div>`:''}
+          </div>`).join('') : '<span class="card-sub">뚜렷한 약점이 보이지 않아요 👍</span>'}
       </div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:16px">
+      <h3 class="card-title">성장기록지</h3><p class="card-sub">시험 결과, 주차별 피드백, 교육자 종합의견을 한눈에 확인해요.</p>
+      <div style="display:flex;gap:14px;margin-bottom:16px">
+        <div style="flex:1;padding:12px;background:var(--bg);border-radius:10px">
+          <div class="card-sub" style="margin:0 0 4px">1차 시험 점수 (신입교육)</div>
+          <div style="font-size:18px;font-weight:800">${record.train2w.examResult ? ui.escapeHtml(record.train2w.examResult) : '–'}</div>
+        </div>
+        <div style="flex:1;padding:12px;background:var(--bg);border-radius:10px">
+          <div class="card-sub" style="margin:0 0 4px">2차 시험 점수 (정착교육)</div>
+          <div style="font-size:18px;font-weight:800">${record.settle4w.examResult ? ui.escapeHtml(record.settle4w.examResult) : '–'}</div>
+        </div>
+      </div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px">정착교육 주차별 피드백</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">${weeksHtml}</div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px">교육자 종합의견</div>
+      <div style="font-size:13px;line-height:1.7;padding:12px;background:var(--bg);border-radius:10px">${record.handover.opinion ? ui.escapeHtml(record.handover.opinion) : '<span class="card-sub">작성된 종합의견이 없어요.</span>'}</div>
     </div>
     <div style="margin-top:18px;display:flex;gap:8px" class="no-print">
       <button class="btn btn-primary" data-action="printPage">🖨 인쇄</button>
@@ -584,14 +637,9 @@ function renderReportTab(record){
 }
 function renderReportCharts(record){
   chartService.destroyAll();
-  const a = teacherService.stageAvgs(record);
-  const trendCtx = document.getElementById('chartReportTrend');
-  chartService.lineChart('reportTrend', trendCtx, ['면접','2주','4주','현재'], [a.interview,a.train2w,a.settle4w,a.settle4w??a.train2w??a.interview], '#4F7CFF');
-
   SCORE_CATEGORIES.forEach(cat=>{
     const ctx = document.getElementById(`chartReportCat_${cat.key}`);
-    const trainVal = teacherService.categoryAvg(record.scores.train2w, TRAIN_SCORES, cat.key)||0;
-    const settleVal = teacherService.categoryAvg(record.scores.settle4w, SETTLE_SCORES, cat.key)||0;
-    chartService.categoryBarChart(`reportCat_${cat.key}`, ctx, trainVal, settleVal);
+    const { labels, values, colors } = buildCategoryItemsData(cat, record);
+    chartService.categoryItemsChart(`reportCat_${cat.key}`, ctx, labels, values, colors);
   });
 }

@@ -6,21 +6,54 @@
    AI 요약/분석 문구 생성을 담당합니다. 차트 렌더링 자체는 ChartService가
    맡고, 이 서비스는 표시할 텍스트·배지 데이터만 만들어 돌려줍니다.
 ============================================================ */
+// 항목별 "보완 필요" 시 보여줄 개선 방법 1~2줄 + 추천 교육. 항목 key 기준.
+const ADVICE_MAP = {
+  envReady: { advice:'조명·마이크 세팅을 점검하고 카메라 응시 비율을 높이는 연습이 필요해요.', training:'온라인 수업 환경 세팅 가이드 교육' },
+  content: { advice:'도입-전개-마무리 시간 배분을 미리 리허설하고, 질문으로 참여를 유도하는 연습이 필요해요.', training:'수업 설계·시연 코칭' },
+  voice: { advice:'발음과 목소리 톤에 강약을 주는 낭독 연습으로 전달력을 높여보세요.', training:'보이스 트레이닝·딕션 교육' },
+  gesture: { advice:'리액션과 제스처를 의식적으로 크게 사용하는 연습이 필요해요.', training:'비언어적 커뮤니케이션 코칭' },
+  material: { advice:'자료의 핵심 포인트를 짚어가며 설명하는 연습과 판서 기능 숙달이 필요해요.', training:'수업 자료·툴 활용 교육' },
+  trainContentUnderstand: { advice:'콘텐츠·교재 내용을 반복 학습하고 모의 테스트로 점검이 필요해요.', training:'콘텐츠 이해 보충 교육' },
+  trainProgramOperate: { advice:'수업 프로그램 조작을 반복 실습해 익숙해지는 연습이 필요해요.', training:'프로그램 조작 실습 교육' },
+  trainDelivery: { advice:'핵심 내용을 짧고 명확하게 전달하는 스피치 연습이 필요해요.', training:'전달력 강화 코칭' },
+  trainCommunication: { advice:'동료·회원과의 소통 상황을 롤플레이로 연습해보는 게 도움이 돼요.', training:'커뮤니케이션 스킬 교육' },
+  trainTaskPerform: { advice:'업무 체크리스트를 활용해 처리 속도와 정확도를 높이는 연습이 필요해요.', training:'업무 프로세스 교육' },
+  trainProblemSolving: { advice:'다양한 케이스 스터디로 문제 상황 대응력을 길러보세요.', training:'문제해결 코칭' },
+  trainContentKnowledge: { advice:'시험 결과를 바탕으로 취약 단원을 다시 학습해보세요.', training:'콘텐츠 재교육 및 재시험' },
+  trainParticipation: { advice:'교육 세션에 적극적으로 질문하고 참여하는 태도가 필요해요.', training:'1:1 멘토링 코칭' },
+  trainCasOperate: { advice:'CAS 시스템 조작을 반복 실습해 숙련도를 높여보세요.', training:'CAS 시스템 실습 교육' },
+  settleClassDesign: { advice:'수업 흐름과 구성을 미리 설계해보는 연습이 필요해요.', training:'수업 설계 코칭' },
+  settleMemberFeedback: { advice:'회원별 맞춤 피드백을 기록하고 정기적으로 전달하는 습관이 필요해요.', training:'피드백 작성 교육' },
+  settleApplication: { advice:'배운 내용을 다양한 상황에 응용하는 연습이 필요해요.', training:'응용력 강화 코칭' },
+  settleCounselSat: { advice:'상담 스크립트를 점검하고 공감적 커뮤니케이션 연습이 필요해요.', training:'상담 스킬 교육' },
+  settleMemberMgmtAbility: { advice:'회원 관리 프로세스를 체크리스트화해 누락 없이 관리하는 연습이 필요해요.', training:'회원관리 실무 교육' },
+  settleProblemSolving: { advice:'실제 발생했던 이슈 사례를 함께 리뷰하며 대응력을 길러보세요.', training:'문제해결 코칭' },
+  settlePolicyUnderstand: { advice:'시험 결과를 바탕으로 정책 매뉴얼을 다시 숙지해보세요.', training:'정책 재교육 및 재시험' },
+  settleAccuracy: { advice:'업무 처리 후 셀프 체크리스트로 검수하는 습관이 필요해요.', training:'업무 정확성 향상 교육' },
+  settleErrorRate: { advice:'반복되는 실수 유형을 기록하고 점검하는 루틴이 필요해요.', training:'실수 예방 교육' },
+};
+
 class ReportService {
-  // 평가 점수 기반으로 우수배지(good)/주의배지(watch)를 자동 생성합니다.
+  // 평가 점수 기반으로 우수배지(good)/보완필요 항목(watch)을 자동 생성합니다.
+  // watch 항목에는 개선 방법(advice)과 추천 교육(training)을 함께 담습니다.
   computeBadges(record){
     const s = record.scores;
+    const allItems = [
+      ...INTERVIEW_SCORES.map(f=>({ key:f.key, label:f.label, val:s.interview?.[f.key] })),
+      ...TRAIN_SCORES.map(f=>({ key:f.key, label:f.label, val:s.train2w?.[f.key] })),
+      ...SETTLE_SCORES.map(f=>({ key:f.key, label:f.label, val:s.settle4w?.[f.key] })),
+    ];
     const good = [], watch = [];
-    const g = (v,label)=>{ if(Number(v)>=4.5) good.push(label); };
-    const w = (v,label)=>{ if(Number(v)>0 && Number(v)<=2.5) watch.push(label); };
-    g(s.settle4w?.settleClassDesign, '🏆 수업 우수'); g(s.interview?.content, '🏆 수업 우수');
-    g(s.settle4w?.settleMemberMgmtAbility, '🏆 회원관리 우수');
-    g(s.train2w?.trainCommunication, '🏆 소통 우수'); g(s.settle4w?.settleCounselSat, '🏆 소통 우수');
-    g(s.settle4w?.settleMemberFeedback, '🏆 피드백 반영 우수');
-    w(s.settle4w?.settleProblemSolving, '⚠ 문제 해결 코칭 필요');
-    w(s.settle4w?.settleAccuracy, '⚠ 업무 정확성 보완');
-    w(s.train2w?.trainProblemSolving, '⚠ 문제해결 경험 부족');
-    return { good:[...new Set(good)].slice(0,4), watch:[...new Set(watch)].slice(0,4) };
+    allItems.forEach(item=>{
+      const v = Number(item.val);
+      if(!v) return;
+      if(v>=4.5) good.push(`🏆 ${item.label} 우수`);
+      else if(v<=2.5){
+        const info = ADVICE_MAP[item.key] || {};
+        watch.push({ label:item.label, value:v, advice: info.advice || '해당 영역에 대한 코칭과 반복 연습이 필요해요.', training: info.training || '' });
+      }
+    });
+    return { good:[...new Set(good)].slice(0,6), watch: watch.slice(0,6) };
   }
 
   // 면접평가 탭의 "AI Summary"

@@ -66,25 +66,43 @@ class ChartService {
       }
     });
   }
-  // 카테고리 1개당 신입교육/정착교육 막대 2개짜리 소형 막대그래프 (최종리포트 카테고리별 비교용)
-  categoryBarChart(key, ctx, trainVal, settleVal){
+  // 카테고리 1개당 신입교육/정착교육 세부 평가항목들을 막대로 나열하는 그래프 (최종리포트 카테고리별 비교용)
+  // labels/values/colors는 같은 길이의 배열이며, 막대 위에 점수를 숫자로 표시합니다.
+  categoryItemsChart(key, ctx, labels, values, colors){
     if(!ctx) return;
     const { grid, tick } = this._themeColors();
+    const valueLabelPlugin = {
+      id:'valueLabel',
+      afterDatasetsDraw(chart){
+        const c = chart.ctx;
+        const meta = chart.getDatasetMeta(0);
+        meta.data.forEach((bar, i)=>{
+          const v = chart.data.datasets[0].data[i];
+          if(v===null || v===undefined || v===0) return;
+          c.save();
+          c.fillStyle = tick;
+          c.font = '700 11px Pretendard, sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'bottom';
+          c.fillText(Number(v).toFixed(1), bar.x, bar.y - 4);
+          c.restore();
+        });
+      }
+    };
     this.registry[key] = new Chart(ctx, {
       type:'bar',
-      data:{
-        labels:['신입교육','정착교육'],
-        datasets:[{ data:[trainVal, settleVal], backgroundColor:['#4F7CFF','#8B6FF0'], borderRadius:8, barThickness:36 }],
-      },
+      data:{ labels, datasets:[{ data:values, backgroundColor:colors, borderRadius:6, barThickness:24 }] },
       options:{
         responsive:true, maintainAspectRatio:false,
         animation:{ duration:700, easing:'easeOutQuart' },
+        layout:{ padding:{ top:16 } },
         scales:{
-          y:{ min:1, max:5, ticks:{ stepSize:1, color: tick }, grid:{ color: grid } },
-          x:{ ticks:{ color: tick }, grid:{ display:false } },
+          y:{ min:0, max:5, ticks:{ stepSize:1, color: tick }, grid:{ color: grid } },
+          x:{ ticks:{ color: tick, font:{ size:10 }, maxRotation:55, minRotation:0 }, grid:{ display:false } },
         },
         plugins:{ legend:{ display:false } },
-      }
+      },
+      plugins:[valueLabelPlugin],
     });
   }
   radarChart(key, ctx, labels, datasets){

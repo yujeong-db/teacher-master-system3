@@ -97,12 +97,13 @@ class TeacherService {
     if(!vals.length) return null;
     return vals.reduce((x,y)=>x+y,0)/vals.length;
   }
+  // 성장률 = 신입교육(2주) 평균 → 정착교육(4주, 최종) 평균의 변화율
   growthPct(t){
     const a = this.stageAvgs(t);
-    const start = a.interview;
-    const latest = a.settle4w ?? a.train2w ?? a.interview;
-    if(start===null || latest===null || start===0) return null;
-    return ((latest-start)/start) * 100;
+    const start = a.train2w;
+    const end = a.settle4w;
+    if(start===null || end===null || start===0) return null;
+    return ((end-start)/start) * 100;
   }
 }
 
