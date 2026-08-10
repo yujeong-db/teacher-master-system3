@@ -97,13 +97,16 @@ class TeacherService {
     if(!vals.length) return null;
     return vals.reduce((x,y)=>x+y,0)/vals.length;
   }
-  // 성장률 = 신입교육(2주) 평균 → 정착교육(4주, 최종) 평균의 변화율
+  // 성장률 = 신입교육(2주) 평균 → 정착교육(4주, 최종) 평균의 변화폭을
+  // 5점 만점 대비 퍼센트로 환산합니다. (예: 2.1→3.8이면 (3.8-2.1)/5*100 = +34%)
+  // 상대적 증가율(%)로 계산하면 시작 점수가 낮을 때 숫자가 비정상적으로
+  // 커지는 문제(예: 1.0→2.0이면 +100%)가 있어 5점 척도 기준으로 바꿨습니다.
   growthPct(t){
     const a = this.stageAvgs(t);
     const start = a.train2w;
     const end = a.settle4w;
-    if(start===null || end===null || start===0) return null;
-    return ((end-start)/start) * 100;
+    if(start===null || end===null) return null;
+    return ((end-start)/5) * 100;
   }
 }
 
