@@ -29,8 +29,8 @@ const ADVICE_MAP = {
   settleMemberMgmtAbility: { advice:'회원 관리 프로세스를 체크리스트화해 누락 없이 관리하는 연습이 필요해요.', training:'회원관리 실무 교육' },
   settleProblemSolving: { advice:'실제 발생했던 이슈 사례를 함께 리뷰하며 대응력을 길러보세요.', training:'문제해결 코칭' },
   settlePolicyUnderstand: { advice:'시험 결과를 바탕으로 정책 매뉴얼을 다시 숙지해보세요.', training:'정책 재교육 및 재시험' },
-  settleAccuracy: { advice:'업무 처리 후 셀프 체크리스트로 검수하는 습관이 필요해요.', training:'업무 정확성 향상 교육' },
-  settleErrorRate: { advice:'반복되는 실수 유형을 기록하고 점검하는 루틴이 필요해요.', training:'실수 예방 교육' },
+  settleAccuracy: { advice:'당일 예정 업무부터 월간 업무까지 미리 파악해 계획적으로 처리하는 습관이 필요해요.', training:'업무 계획·수행 관리 교육' },
+  settleErrorRate: { advice:'반복되는 실수 유형을 기록하고 나만의 점검 기준을 만들어 관리하는 루틴이 필요해요.', training:'업무 정확도 향상 교육' },
 };
 
 class ReportService {

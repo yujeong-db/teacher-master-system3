@@ -88,16 +88,15 @@ const SETTLE_SCORES = [
   { key:'settleMemberMgmtAbility', label:'회원관리능력', category:'memberMgmt' },
   { key:'settleProblemSolving',    label:'문제해결능력', category:'memberMgmt' },
   { key:'settlePolicyUnderstand',  label:'정책이해도',   category:'workKnowledge', hasExam:true },
-  { key:'settleAccuracy',          label:'업무 정확성',  category:'workKnowledge' },
-  { key:'settleErrorRate',         label:'실수율',       category:'workKnowledge' },
+  { key:'settleAccuracy',          label:'업무수행률',   category:'workKnowledge' },
+  { key:'settleErrorRate',         label:'업무정확도',   category:'workKnowledge' },
 ];
 /* ============================================================
    SCORE_RUBRICS — 항목별 5점 척도 채점 기준
    -------------------------------------------------------------
-   면접평가(INTERVIEW_SCORES) 5개 항목은 실제 채점 기준 원문을 그대로
-   담았습니다. 신입교육/정착교육 항목은 아직 기준 원문을 받지 못해
-   자리만 마련해뒀습니다(criteria:null) — 나중에 기준 텍스트를 주시면
-   여기에 채워 넣기만 하면 화면에 바로 반영돼요.
+   면접평가(INTERVIEW_SCORES)/신입교육(TRAIN_SCORES)/정착교육(SETTLE_SCORES)
+   전 항목에 실제 채점 기준 원문이 채워져 있습니다. 항목이 새로 추가되면
+   여기에 { desc, criteria } 형식으로 채워 넣으면 화면에 바로 반영돼요.
 ============================================================ */
 const SCORE_RUBRICS = {
   envReady: {
@@ -302,8 +301,36 @@ const SCORE_RUBRICS = {
       { score:5, title:'매우 우수', text:'문제의 원인과 우선순위를 스스로 판단하고, 본인이 해결할 수 있는 문제는 독립적으로 처리하며 필요한 경우 적절한 담당자에게 도움을 요청하여 끝까지 해결한다.' },
     ],
   },
-  // 정책이해도/업무 정확성/실수율은 채점 기준 원문을 받으면 위와 같은 형식으로 채워주세요.
-  settlePolicyUnderstand: null, settleAccuracy: null, settleErrorRate: null,
+  settlePolicyUnderstand: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'회원의 상황에 맞는 기본적인 코칭과 스케줄링을 진행할 수 있다.' },
+      { score:2, title:'미흡', text:'보편적인 회원 상황과 예외적인 상황을 구분하고, 확인이 필요한 내용을 스스로 질문할 수 있다.' },
+      { score:3, title:'보통', text:'회원의 일반적인 문의에 대해 관련 정책을 확인하여 정확하게 안내할 수 있다. (예: 학습기 교체, 휴회 등)' },
+      { score:4, title:'우수', text:'회원의 요청에 따라 해지, 상품 변경 등 정책이 필요한 업무를 정확하게 처리할 수 있다.' },
+      { score:5, title:'매우 우수', text:'회원의 상황을 파악하여 회원에게 필요한 정책이나 변경 가능 사항을 먼저 안내하고, 적절한 선택지를 제시할 수 있다.' },
+    ],
+  },
+  settleAccuracy: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'당일 예정된 업무의 50% 미만을 수행한다.' },
+      { score:2, title:'미흡', text:'당일 예정된 업무를 70% 이상 수행하고, 기본적인 문의 업무를 추가로 처리한다.' },
+      { score:3, title:'보통', text:'당일 예정된 업무를 100% 완료하고, 추가로 발생한 문의 업무를 처리한다.' },
+      { score:4, title:'우수', text:'당일 업무뿐 아니라 월간 예정 업무를 미리 파악하고 일정에 맞춰 계획적으로 수행한다.' },
+      { score:5, title:'매우 우수', text:'예정된 업무를 기한 내 모두 완료하고, 다음 업무를 스스로 파악하여 추가 업무를 요청하거나 선제적으로 수행한다.' },
+    ],
+  },
+  settleErrorRate: {
+    desc: null,
+    criteria: [
+      { score:1, title:'매우 미흡', text:'교사의 실수로 인해 정해진 기준과 다르게 업무가 진행되는 경우가 있다.' },
+      { score:2, title:'미흡', text:'업무 과정에서 실수가 발생하며, 본인이 발견하기 전에 다른 사람이 발견하는 경우가 있다.' },
+      { score:3, title:'보통', text:'업무 과정에서 발생한 실수를 스스로 발견하고 수정할 수 있다.' },
+      { score:4, title:'우수', text:'실수가 거의 발생하지 않으며, 실수가 발생했던 원인을 기록하고 동일한 실수가 반복되지 않도록 스스로 관리한다.' },
+      { score:5, title:'매우 우수', text:'업무 과정에서 발생할 수 있는 실수와 누락을 미리 예상하고, 본인만의 체크 방법이나 관리 기준을 만들어 업무의 정확도를 지속적으로 높인다.' },
+    ],
+  },
 };
 
 const NAV = [
