@@ -519,23 +519,57 @@ function renderHandoverTab(record){
 }
 
 /* ---- 최종리포트 ---- */
+// 카테고리별 분석 막대그래프의 "쌍(pair)"별 항목 이름·점수 글자색.
+// 신입교육 항목과 그 짝이 되는 정착교육 항목(pairKey로 연결)이 같은 색을 갖습니다.
+// - 1번째 쌍(콘텐츠 이해도/수업구성능력, 의사소통능력/회원소통만족도, 내용이해도/정책이해도) → 빨간색
+// - 2번째 쌍(프로그램 조작도/회원별피드백, 업무수행력/회원관리능력, 교육참여도/업무수행률) → 연두색
+// - 3번째 쌍(내용 전달력/내용 응용력, 문제해결능력, CAS 조작/업무정확도) → 파란색
+// 색은 항목(key) 자체에 고정되어 있어서, 막대 위치를 바꿔도 항목의 색은 그대로 따라갑니다.
+const CATEGORY_PAIR_LABEL_COLOR = {
+  trainContentUnderstand:'#F2415A', settleClassDesign:'#F2415A',
+  trainCommunication:'#F2415A',     settleCounselSat:'#F2415A',
+  trainContentKnowledge:'#F2415A',  settlePolicyUnderstand:'#F2415A',
+
+  trainProgramOperate:'#8BC34A',    settleMemberFeedback:'#8BC34A',
+  trainTaskPerform:'#8BC34A',       settleMemberMgmtAbility:'#8BC34A',
+  trainParticipation:'#8BC34A',     settleAccuracy:'#8BC34A',
+
+  trainDelivery:'#4F7CFF',          settleApplication:'#4F7CFF',
+  trainProblemSolving:'#4F7CFF',    settleProblemSolving:'#4F7CFF',
+  trainCasOperate:'#4F7CFF',        settleErrorRate:'#4F7CFF',
+};
+
 // 카테고리 1개에 속한 신입교육 항목 3개 + 정착교육 항목 3개를 번갈아 나열한
-// labels/values/colors 배열을 만듭니다. (카테고리별 분석 막대그래프용)
+// labels/values/colors/tickColors 배열을 만듭니다. (카테고리별 분석 막대그래프용)
 function buildCategoryItemsData(cat, record){
   const trainItems = TRAIN_SCORES.filter(f=>f.category===cat.key);
-  const labels = [], values = [], colors = [];
+  const entries = [];
   trainItems.forEach(t=>{
-    labels.push(t.label);
-    values.push(Number(record.scores.train2w[t.key]) || 0);
-    colors.push('#F5B940');
+    entries.push({
+      key: t.key, label: t.label, value: Number(record.scores.train2w[t.key]) || 0,
+      color: '#F5B940', tickColor: CATEGORY_PAIR_LABEL_COLOR[t.key],
+    });
     const pair = SETTLE_SCORES.find(s=>s.key===t.pairKey);
     if(pair){
-      labels.push(pair.label);
-      values.push(Number(record.scores.settle4w[pair.key]) || 0);
-      colors.push('#EB7A3C');
+      entries.push({
+        key: pair.key, label: pair.label, value: Number(record.scores.settle4w[pair.key]) || 0,
+        color: '#EB7A3C', tickColor: CATEGORY_PAIR_LABEL_COLOR[pair.key],
+      });
     }
   });
-  return { labels, values, colors };
+  // 업무지식 그래프에서는 "업무수행률"과 "업무정확도" 막대의 위치를 서로 바꿔서 보여줍니다.
+  // (각 항목의 글자색은 항목 자체에 고정돼 있으므로 위치를 바꿔도 원래 색을 그대로 유지합니다.)
+  if(cat.key==='workKnowledge'){
+    const i1 = entries.findIndex(e=>e.key==='settleAccuracy');
+    const i2 = entries.findIndex(e=>e.key==='settleErrorRate');
+    if(i1!==-1 && i2!==-1){ const tmp = entries[i1]; entries[i1] = entries[i2]; entries[i2] = tmp; }
+  }
+  return {
+    labels: entries.map(e=>e.label),
+    values: entries.map(e=>e.value),
+    colors: entries.map(e=>e.color),
+    tickColors: entries.map(e=>e.tickColor),
+  };
 }
 
 function renderReportTab(record){
@@ -659,7 +693,7 @@ function renderReportCharts(record){
   chartService.destroyAll();
   SCORE_CATEGORIES.forEach(cat=>{
     const ctx = document.getElementById(`chartReportCat_${cat.key}`);
-    const { labels, values, colors } = buildCategoryItemsData(cat, record);
-    chartService.categoryItemsChart(`reportCat_${cat.key}`, ctx, labels, values, colors);
+    const { labels, values, colors, tickColors } = buildCategoryItemsData(cat, record);
+    chartService.categoryItemsChart(`reportCat_${cat.key}`, ctx, labels, values, colors, tickColors);
   });
 }

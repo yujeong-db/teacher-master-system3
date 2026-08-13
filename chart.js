@@ -68,9 +68,11 @@ class ChartService {
   }
   // 카테고리 1개당 신입교육/정착교육 세부 평가항목들을 막대로 나열하는 그래프 (최종리포트 카테고리별 비교용)
   // labels/values/colors는 같은 길이의 배열이며, 막대 위에 점수를 숫자로 표시합니다.
-  categoryItemsChart(key, ctx, labels, values, colors){
+  // tickColors(선택): 항목별로 x축 이름 글자·막대 위 점수 글자 색을 따로 지정하고 싶을 때 같은 길이의 배열로 전달합니다.
+  categoryItemsChart(key, ctx, labels, values, colors, tickColors){
     if(!ctx) return;
     const { grid, tick } = this._themeColors();
+    const labelColorAt = (i)=> (tickColors && tickColors[i]) || tick;
     const valueLabelPlugin = {
       id:'valueLabel',
       afterDatasetsDraw(chart){
@@ -80,7 +82,7 @@ class ChartService {
           const v = chart.data.datasets[0].data[i];
           if(v===null || v===undefined || v===0) return;
           c.save();
-          c.fillStyle = tick;
+          c.fillStyle = labelColorAt(i);
           c.font = '700 11px Pretendard, sans-serif';
           c.textAlign = 'center';
           c.textBaseline = 'bottom';
@@ -98,7 +100,7 @@ class ChartService {
         layout:{ padding:{ top:16 } },
         scales:{
           y:{ min:0, max:5, ticks:{ stepSize:1, color: tick }, grid:{ color: grid } },
-          x:{ ticks:{ color: tick, font:{ size:10 }, maxRotation:55, minRotation:0 }, grid:{ display:false } },
+          x:{ ticks:{ color: (c2)=>labelColorAt(c2.index), font:{ size:10, weight:'700' }, maxRotation:55, minRotation:0 }, grid:{ display:false } },
         },
         plugins:{ legend:{ display:false } },
       },
