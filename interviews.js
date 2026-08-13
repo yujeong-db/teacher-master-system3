@@ -216,6 +216,10 @@ function renderCalendar(){
       (dayMap[t.interview.date] = dayMap[t.interview.date] || []).push({ type:'teacher', data:t });
     }
   });
+  // Dashboard에서 등록한 신입 교육 일정(기수)의 시작일도 함께 표시합니다.
+  (typeof TRAINING_COHORTS !== 'undefined' ? TRAINING_COHORTS : []).forEach(c=>{
+    if(c.date){ (dayMap[c.date] = dayMap[c.date] || []).push({ type:'cohort', data:c }); }
+  });
 
   const cells = [];
   for(let i=startDay-1;i>=0;i--){
@@ -244,8 +248,12 @@ function renderCalendar(){
           ${timePart}${jobPrefix}${ui.escapeHtml(s.intervieweeName||'이름없음')}${roomPart}
         </div>`;
       }
-      const t = e.data;
-      return `<div class="cal-chip registered" data-action="openTeacher" data-id="${t.id}">👤 ${ui.escapeHtml(t.name)}</div>`;
+      if(e.type==='teacher'){
+        const t = e.data;
+        return `<div class="cal-chip registered" data-action="openTeacher" data-id="${t.id}">👤 ${ui.escapeHtml(t.name)}</div>`;
+      }
+      const c = e.data;
+      return `<div class="cal-chip cohort" data-action="openCohort" data-id="${c.id}" title="신입 교육 시작일">[${ui.escapeHtml(c.label)} 교육 시작일]</div>`;
     }).join('');
     return `<div class="cal-day ${c.outside?'outside':''} ${c.dateStr===todayStr?'today':''}" data-date="${c.dateStr}">
       <div class="cal-daynum">${c.dayNum}</div>
@@ -255,7 +263,7 @@ function renderCalendar(){
 
   grid.querySelectorAll('.cal-day').forEach(cell=>{
     cell.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-action="openSchedule"]') || e.target.closest('[data-action="openTeacher"]')) return;
+      if(e.target.closest('[data-action="openSchedule"]') || e.target.closest('[data-action="openTeacher"]') || e.target.closest('[data-action="openCohort"]')) return;
       openAddInterviewModal(cell.dataset.date);
     });
   });
@@ -264,6 +272,9 @@ function renderCalendar(){
   });
   grid.querySelectorAll('[data-action="openTeacher"]').forEach(el=>{
     el.addEventListener('click', (e)=>{ e.stopPropagation(); location.href = `teacher-detail.html?id=${el.dataset.id}`; });
+  });
+  grid.querySelectorAll('[data-action="openCohort"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{ e.stopPropagation(); location.href = `index.html`; });
   });
 }
 

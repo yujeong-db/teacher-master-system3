@@ -22,37 +22,33 @@ class DashboardService {
     ];
   }
 
-  // 신입교사 성장 추이: 최근 3개월 내 교육 기수(날짜 기준)가 지정된 교사만 대상으로,
-  // 기수별로 묶어 신입교육(2주차)·정착교육(4주차) "총점(종합점수)" 평균을 비교합니다.
-  getCohortGrowthComparison(teachers){
-    const cutoff = Date.now() - 90*86400000;
-    const recent = teachers.filter(t=>{
-      if(t.status===REJECTED_STATUS_KEY) return false; // 면접 탈락자는 신입/정착교육을 진행하지 않으므로 제외
-      if(!t.cohortId) return false;
-      const cohort = TRAINING_COHORTS.find(c=>c.id===t.cohortId);
-      const cohortTs = cohort ? new Date(cohort.date).getTime() : NaN;
-      return !isNaN(cohortTs) && cohortTs >= cutoff;
+  // 신입교사 성장 추이: 신입 교육 일정에서 "완료 처리"하지 않아 계속 노출되는(숨기지 않은)
+  // 기수 중 가장 최근 2개 기수를 대상으로, 직무(영어/교과)별로 신입교육(2주차)·정착교육(4주차)
+  // "총점(종합점수)" 평균을 비교합니다. 기수 × 직무 조합마다 그래프를 하나씩 만듭니다
+  // (예: 기수 2개 x 직무 2개 = 그래프 4개). Dashboard에서 "완료" 처리해 기수를 숨기면
+  // 자동으로 다음으로 최근인 기수가 그 자리를 채웁니다.
+  getRecentCohortJobGrowth(teachers){
+    const visibleCohorts = TRAINING_COHORTS.filter(c=>!c.completed).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    const recentCohorts = visibleCohorts.slice(0,2).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const jobs = ['english','subject'];
+    const groups = [];
+    recentCohorts.forEach(cohort=>{
+      jobs.forEach(jobKey=>{
+        const list = teachers.filter(t=> t.cohortId===cohort.id && t.job===jobKey && t.status!==REJECTED_STATUS_KEY);
+        const trainVals = list.map(t=>this.ts.avgOf(t.scores.train2w, TRAIN_SCORES)).filter(v=>v!==null);
+        const settleVals = list.map(t=>this.ts.avgOf(t.scores.settle4w, SETTLE_SCORES)).filter(v=>v!==null);
+        groups.push({
+          key: `${cohort.id}_${jobKey}`,
+          cohortLabel: cohort.label,
+          cohortDate: cohort.date,
+          jobLabel: JOB_TYPES[jobKey] ? JOB_TYPES[jobKey].label : jobKey,
+          teacherCount: list.length,
+          trainAvg: trainVals.length ? trainVals.reduce((a,b)=>a+b,0)/trainVals.length : null,
+          settleAvg: settleVals.length ? settleVals.reduce((a,b)=>a+b,0)/settleVals.length : null,
+        });
+      });
     });
-    const groups = {};
-    recent.forEach(t=>{ (groups[t.cohortId] = groups[t.cohortId] || []).push(t); });
-
-    const rows = Object.entries(groups).map(([cohortId, list])=>{
-      const cohort = TRAINING_COHORTS.find(c=>c.id===cohortId);
-      const trainVals = list.map(t=>this.ts.avgOf(t.scores.train2w, TRAIN_SCORES)).filter(v=>v!==null);
-      const settleVals = list.map(t=>this.ts.avgOf(t.scores.settle4w, SETTLE_SCORES)).filter(v=>v!==null);
-      return {
-        label: cohort ? cohort.label : '미지정 기수',
-        date: cohort ? cohort.date : '',
-        trainAvg: trainVals.length ? trainVals.reduce((a,b)=>a+b,0)/trainVals.length : null,
-        settleAvg: settleVals.length ? settleVals.reduce((a,b)=>a+b,0)/settleVals.length : null,
-      };
-    }).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-
-    return {
-      labels: rows.map(r=>r.label),
-      trainAvg: rows.map(r=>r.trainAvg),
-      settleAvg: rows.map(r=>r.settleAvg),
-    };
+    return groups;
   }
 
   // 신입팀(CNE1/CN1) 배치 현황: 교사의 "현재 소속팀(currentTeam)"을 읽어 자동 계산
@@ -137,16 +133,32 @@ function renderNewTeamRosters(teachers){
 }
 
 function renderGrowthChart(teachers){
-  const cmp = dashboardService.getCohortGrowthComparison(teachers);
-  const ctx = document.getElementById('chartGrowthTrend');
-  if(!cmp.labels.length){
-    ctx.closest('.chart-h').innerHTML = '<div class="card-sub" style="padding-top:20px">최근 3개월 내 입사했고 교육 기수가 지정된 교사가 아직 없어요.</div>';
+  const groups = dashboardService.getRecentCohortJobGrowth(teachers);
+  const grid = document.getElementById('growthChartGrid');
+  if(!grid) return;
+
+  if(!groups.length){
+    grid.innerHTML = '<div class="card-sub" style="padding-top:4px">신입 교육 일정을 등록하면 기수별 성장 추이를 확인할 수 있어요. 완료 처리하지 않은(숨기지 않은) 기수 중 최근 2개가 자동으로 표시돼요.</div>';
     return;
   }
-  chartService.groupedBarChart('growth', ctx, cmp.labels, [
-    { label:'신입교육 평균', data:cmp.trainAvg, backgroundColor:'#4F7CFF' },
-    { label:'정착교육 평균', data:cmp.settleAvg, backgroundColor:'#8B6FF0' },
-  ]);
+
+  grid.innerHTML = groups.map(g=>`
+    <div class="growth-chart-cell">
+      <div class="growth-chart-cell-title">${ui.escapeHtml(g.jobLabel)} · ${ui.escapeHtml(g.cohortLabel)}</div>
+      <div class="chart-h" style="height:200px"><canvas id="chartGrowth_${g.key}"></canvas></div>
+      <div class="card-sub" style="margin:6px 0 0;text-align:center">${g.teacherCount}명</div>
+    </div>`).join('');
+
+  groups.forEach(g=>{
+    const ctx = document.getElementById(`chartGrowth_${g.key}`);
+    if(!ctx) return;
+    if(g.trainAvg===null && g.settleAvg===null){
+      ctx.closest('.chart-h').innerHTML = '<div class="card-sub" style="padding-top:20px;text-align:center">아직 평가 데이터가 없어요.</div>';
+      return;
+    }
+    // 막대 위에 정확한 평균 점수를 함께 표시합니다.
+    chartService.categoryItemsChart(`growth_${g.key}`, ctx, ['신입교육 평균','정착교육 평균'], [g.trainAvg, g.settleAvg], ['#4F7CFF','#8B6FF0']);
+  });
 }
 
 /* ============================================================

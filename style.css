@@ -151,6 +151,11 @@ button,input,select,textarea{font-family:inherit;color:inherit;}
 @media(max-width:1180px){.two-col{grid-template-columns:1fr;}}
 .chart-h{height:240px;position:relative;}
 
+/* 신입교사 성장 추이 — 기수 x 직무 조합별 소형 막대그래프 그리드 */
+.growth-chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:14px;}
+.growth-chart-cell{padding:12px;background:var(--bg);border-radius:12px;}
+.growth-chart-cell-title{font-size:12.5px;font-weight:700;color:var(--ink-soft);text-align:center;margin-bottom:6px;}
+
 .btn{
   border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;
@@ -271,6 +276,7 @@ button,input,select,textarea{font-family:inherit;color:inherit;}
 .cal-chip.result-passed{background:var(--green-dim);color:var(--green);}
 .cal-chip.result-failed{background:var(--red-dim);color:var(--red);}
 .cal-chip.registered{background:var(--purple-dim);color:var(--purple);}
+.cal-chip.cohort{background:var(--green-dim);color:var(--green);}
 .cal-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--ink-soft);}
 .cal-legend span{display:flex;align-items:center;gap:6px;}
 .cal-dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--primary-dim);}
@@ -278,6 +284,7 @@ button,input,select,textarea{font-family:inherit;color:inherit;}
 .cal-dot.result-passed{background:var(--green);}
 .cal-dot.result-failed{background:var(--red);}
 .cal-dot.registered{background:var(--purple);}
+.cal-dot.cohort{background:var(--green);}
 @media(max-width:720px){
   .cal-day{min-height:64px;padding:5px 4px;}
   .cal-chip{font-size:9.5px;}
@@ -449,11 +456,22 @@ table.tlist tr:hover{background:var(--bg);}
 .tl-body .tl-date{font-size:11px;color:var(--ink-faint);margin-top:2px;}
 .tl-body .tl-score{font-size:11.5px;color:var(--primary-ink);font-weight:700;margin-top:4px;}
 
-.growth-box{display:flex;align-items:center;gap:18px;padding:16px 4px;}
+.growth-box{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 4px;flex-wrap:wrap;}
 .growth-num{font-size:36px;font-weight:800;}
 .growth-arrow{font-size:13px;font-weight:800;padding:4px 11px;border-radius:100px;}
 .growth-arrow.up{background:var(--primary-dim);color:var(--primary-ink);}
 .growth-arrow.down{background:var(--red-dim);color:var(--red);}
+
+/* 성장률 카드 오른쪽 — 카테고리별(코칭능력/회원관리/업무지식) 신입↔정착 평점 비교 */
+.growth-cat-compare{display:flex;flex-direction:column;gap:6px;min-width:190px;padding:10px 14px;background:var(--bg);border-radius:12px;}
+.growth-cat-head{display:flex;align-items:center;gap:10px;}
+.growth-cat-head .growth-cat-val-head{font-size:10.5px;font-weight:700;color:var(--ink-faint);width:30px;text-align:center;}
+.growth-cat-row{display:flex;align-items:center;gap:10px;}
+.growth-cat-label{font-size:12px;font-weight:700;color:var(--ink-soft);flex:1;}
+.growth-cat-val{font-size:13px;font-weight:800;width:30px;text-align:center;color:var(--primary-ink);}
+.growth-cat-val.settle{color:var(--purple);}
+.growth-cat-arrow{font-size:11px;color:var(--ink-faint);}
+@media(max-width:1180px){.growth-cat-compare{width:100%;}}
 .ai-card{background:linear-gradient(135deg,var(--primary-dim),var(--purple-dim));border:1px solid var(--border);border-radius:13px;padding:17px 19px;font-size:13px;line-height:1.75;color:var(--ink);}
 .ai-card .ai-label{font-size:10.5px;font-weight:800;color:var(--primary-ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:5px;}
 

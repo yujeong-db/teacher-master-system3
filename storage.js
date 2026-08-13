@@ -38,7 +38,7 @@ class StorageService {
       settlements: {},      // id -> 정착교육(4주)
       reports: {},         // id -> 인수인계 / 히스토리 / 평가기록
       evaluators: [],       // [{id, name}]
-      settings: { evaluatorId:'', seeded:false, rejectedSeenIds:[] },
+      settings: { evaluatorId:'', seeded:false, rejectedSeenIds:[], dismissedSeenIds:[] },
       teamConfig: {
         newTeams: ['CNE1', 'CN1'],
         placedTeams: ['C2','C3','C4','C5','C6','C7','C8','C9','C10','C11'],

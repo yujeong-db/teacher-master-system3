@@ -563,15 +563,38 @@ function renderReportTab(record){
       <div style="font-size:12.5px;line-height:1.6">${w.feedback ? ui.escapeHtml(w.feedback) : '<span class="card-sub">기록 없음</span>'}</div>
     </div>`).join('');
 
+  // 성장률 카드 오른쪽에 카테고리(코칭능력/회원관리/업무지식)별 신입교육↔정착교육 평점을 나란히 비교해 보여줍니다.
+  const categoryCompareHtml = SCORE_CATEGORIES.map(cat=>{
+    const tv = teacherService.categoryAvg(record.scores.train2w, TRAIN_SCORES, cat.key);
+    const sv = teacherService.categoryAvg(record.scores.settle4w, SETTLE_SCORES, cat.key);
+    return `<div class="growth-cat-row">
+      <span class="growth-cat-label">${cat.label}</span>
+      <span class="growth-cat-val">${tv!==null?tv.toFixed(1):'–'}</span>
+      <span class="growth-cat-arrow">→</span>
+      <span class="growth-cat-val settle">${sv!==null?sv.toFixed(1):'–'}</span>
+    </div>`;
+  }).join('');
+
   return `<div>
     <div class="two-col" style="margin-bottom:16px">
       <div class="card card-pad">
         <h3 class="card-title">성장률</h3><p class="card-sub">신입교육 2주 → 정착교육 4주(최종)</p>
         <div class="growth-box">
-          <div><div class="growth-num">${a.train2w!==null?a.train2w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">신입교육 2주</div></div>
-          <div style="font-size:20px;color:var(--ink-faint)">→</div>
-          <div><div class="growth-num">${a.settle4w!==null?a.settle4w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">정착교육 4주(최종)</div></div>
-          ${growth!==null?`<span class="growth-arrow ${growthUp?'up':'down'}">${growthUp?'▲':'▼'} ${Math.abs(growth).toFixed(1)}%</span>`:''}
+          <div style="display:flex;align-items:center;gap:18px">
+            <div><div class="growth-num">${a.train2w!==null?a.train2w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">신입교육 2주</div></div>
+            <div style="font-size:20px;color:var(--ink-faint)">→</div>
+            <div><div class="growth-num">${a.settle4w!==null?a.settle4w.toFixed(1):'–'}</div><div class="card-sub" style="margin:0">정착교육 4주(최종)</div></div>
+            ${growth!==null?`<span class="growth-arrow ${growthUp?'up':'down'}">${growthUp?'▲':'▼'} ${Math.abs(growth).toFixed(1)}%</span>`:''}
+          </div>
+          <div class="growth-cat-compare">
+            <div class="growth-cat-head">
+              <span class="growth-cat-label"></span>
+              <span class="growth-cat-val-head">신입</span>
+              <span class="growth-cat-arrow"></span>
+              <span class="growth-cat-val-head">정착</span>
+            </div>
+            ${categoryCompareHtml}
+          </div>
         </div>
       </div>
       <div class="card card-pad">

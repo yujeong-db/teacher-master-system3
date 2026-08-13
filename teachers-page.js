@@ -14,6 +14,10 @@
 let PHONE_DUP_COUNTS = {};
 let TEACHER_PHONE_DUP_COUNTS = {};
 let REJECTED_SEEN_IDS = [];
+let DISMISSED_SEEN_IDS = [];
+// 상태 필터 칩에 빨간 New 배지를 붙일 상태들과, 각 상태별로 "확인함" 처리한 id 목록을
+// settings에 저장하는 필드명을 매핑합니다. (면접 탈락 / 해촉)
+const NEW_BADGE_STATUS_KEYS = { [REJECTED_STATUS_KEY]: 'rejectedSeenIds', dismissed: 'dismissedSeenIds' };
 
 async function bootTeachersPage(){
   await seedIfEmpty();
@@ -35,6 +39,7 @@ async function bootTeachersPage(){
 
   const settings = await storageService.getSettings();
   REJECTED_SEEN_IDS = settings.rejectedSeenIds || [];
+  DISMISSED_SEEN_IDS = settings.dismissedSeenIds || [];
 
   const params = new URLSearchParams(location.search);
   const filterParam = params.get('filter');
@@ -88,10 +93,13 @@ function renderStatusFilterChips(listState, teachers){
   const wrap = document.getElementById('statusFilterChips');
   if(!wrap) return;
   const options = Object.entries(STATUS).map(([key,v])=>({ key, label:v.label }));
+  // 상태별 "확인함" id 목록 — 면접 탈락은 REJECTED_SEEN_IDS, 해촉은 DISMISSED_SEEN_IDS를 참조합니다.
+  const seenIdsFor = (key)=> key===REJECTED_STATUS_KEY ? REJECTED_SEEN_IDS : key==='dismissed' ? DISMISSED_SEEN_IDS : null;
   const paint = ()=>{
     wrap.innerHTML = options.map(opt=>{
-      const hasNew = opt.key===REJECTED_STATUS_KEY &&
-        teachers.some(t=>t.status===REJECTED_STATUS_KEY && !REJECTED_SEEN_IDS.includes(t.id));
+      const seenIds = seenIdsFor(opt.key);
+      const hasNew = seenIds!==null &&
+        teachers.some(t=>t.status===opt.key && !seenIds.includes(t.id));
       return `<button class="filter-chip ${listState.statusFilter.has(opt.key)?'on':''}" data-status="${opt.key}">${opt.label}${hasNew?' <span class="chip-new">New</span>':''}</button>`;
     }).join('');
     wrap.querySelectorAll('.filter-chip').forEach(btn=>{
@@ -99,11 +107,12 @@ function renderStatusFilterChips(listState, teachers){
         const key = btn.dataset.status;
         const turningOn = !listState.statusFilter.has(key);
         listState.statusFilter.has(key) ? listState.statusFilter.delete(key) : listState.statusFilter.add(key);
-        // "면접 탈락" 칩을 열어보면 그 시점의 탈락자들을 확인한 것으로 처리해 New 표시를 지웁니다.
-        if(key===REJECTED_STATUS_KEY && turningOn){
-          const rejectedIds = teachers.filter(t=>t.status===REJECTED_STATUS_KEY).map(t=>t.id);
-          REJECTED_SEEN_IDS = rejectedIds;
-          await storageService.saveSettings({ rejectedSeenIds: rejectedIds });
+        // "면접 탈락"/"해촉" 칩을 열어보면 그 시점의 대상자들을 확인한 것으로 처리해 New 표시를 지웁니다.
+        const settingsField = NEW_BADGE_STATUS_KEYS[key];
+        if(settingsField && turningOn){
+          const seenIds = teachers.filter(t=>t.status===key).map(t=>t.id);
+          if(key===REJECTED_STATUS_KEY) REJECTED_SEEN_IDS = seenIds; else if(key==='dismissed') DISMISSED_SEEN_IDS = seenIds;
+          await storageService.saveSettings({ [settingsField]: seenIds });
         }
         paint();
         renderTeacherTable(teachers, listState);
@@ -250,6 +259,8 @@ function renderTeacherTable(teachers, listState){
       const t = teachers.find(x=>x.id===id);
       if(t){ t.currentTeam = record.currentTeam; t.status = record.status; }
       ui.toast(msg);
+      // 상태가 "면접 탈락"/"해촉"으로 바뀌면 상단 상태 필터 칩에 바로 New 배지가 뜨도록 다시 그립니다.
+      if(sel.dataset.role==='status' && !listState.lockedFilter) renderStatusFilterChips(listState, teachers);
       renderTeacherTable(teachers, listState);
     });
   });
